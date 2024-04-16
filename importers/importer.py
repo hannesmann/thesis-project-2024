@@ -7,13 +7,13 @@ class DataImporter(abc.ABC):
 	"""Represents a source of devices and applications"""
 
 	@abc.abstractmethod
-	def	fetch_devices(self):
-		"""Fetch a list of devices from this data source"""
+	def	fetch_discovered_apps(self):
+		"""Fetch a list of all discovered apps from this data source"""
 		pass
 
 	@abc.abstractmethod
-	def	fetch_apps_for_device(self, device_id):
-		"""Fetch a list of apps on a device from this data source"""
+	def	fetch_devices(self):
+		"""Fetch a list of all devices from this data source"""
 		pass
 
 	@abc.abstractmethod

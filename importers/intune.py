@@ -4,5 +4,5 @@
 from importer import DataImporter
 
 # TODO
-class MicrosoftIntuneImporter(DataImporter):
+class IntuneImporter(DataImporter):
 	pass
