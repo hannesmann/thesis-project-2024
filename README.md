@@ -28,7 +28,7 @@ poetry shell
 # Start the server in debug mode (localhost:5000)
 python app.py
 # Start the server in production mode (localhost:8000)
-gunicorn --workers=4 --log-file=- app:api
+gunicorn --workers=1 --worker-class=gevent --log-file=- app:api
 
 # Get a list of API endpoints
 curl http://localhost:8000
