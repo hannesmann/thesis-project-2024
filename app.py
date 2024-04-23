@@ -7,7 +7,10 @@ from flask import Flask, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 
+global application_repo_instance, devices_repo_instance
+
 from repository.apps import ApplicationRepository, application_repo_instance
+from repository.devices import DevicesRepository, devices_repo_instance
 
 # Initialize REST server
 api = Flask(__name__)
@@ -18,6 +21,7 @@ db = SQLAlchemy()
 db.init_app(api)
 
 application_repo_instance = ApplicationRepository(db)
+devices_repo_instance = DevicesRepository(db)
 
 with api.app_context():
     db.create_all()
