@@ -29,7 +29,6 @@ class DevicesRepository:
 			Column("device_id", String(255), ForeignKey("devices.id")),
 			Column("app_id", String(255)),
 
-			# TODO: Test if this works as expected (composite UNIQUE constraint)
 			UniqueConstraint("device_id", "app_id")
 		)
 

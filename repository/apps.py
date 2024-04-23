@@ -31,8 +31,15 @@ class ApplicationRepository:
 			Column("app_id", String, ForeignKey("applications.id")),
 			Column("permission", String),
 
-			# TODO: Test if this works as expected (composite UNIQUE constraint)
 			UniqueConstraint("app_id", "permission")
+		)
+		self.trackers_table = db.Table(
+			"android_trackers",
+
+			Column("app_id", String, ForeignKey("applications.id")),
+			Column("tracker", String),
+
+			UniqueConstraint("app_id", "tracker")
 		)
 
 # Initialized by app.py
