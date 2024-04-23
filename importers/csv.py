@@ -3,7 +3,7 @@
 
 from csv import reader
 from importer import DataImporter
-from ..model.app import Application
+from model.app import Application
 
 # TODO: Improve CSV format (add app name, etc) and convert existing dataset
 class CSVImporter(DataImporter):

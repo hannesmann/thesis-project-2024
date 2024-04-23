@@ -7,16 +7,18 @@ from flask import Flask, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 
-# https://flask-sqlalchemy.palletsprojects.com/en/3.1.x/quickstart/
-class Base(DeclarativeBase):
-  pass
+from repository.apps import ApplicationRepository, application_repo_instance
 
-db = SQLAlchemy(model_class=Base)
-
+# Initialize REST server
 api = Flask(__name__)
 api.config.from_pyfile("config.py")
 
+# Initialize database and repositories
+db = SQLAlchemy()
 db.init_app(api)
+
+application_repo_instance = ApplicationRepository(db)
+
 with api.app_context():
     db.create_all()
 
