@@ -13,17 +13,17 @@ The project implements a proof-of-concept application for performing data collec
 
 ### Requirements
 
-* Python 3.11
-* Pipenv
-* A WSGI server such as Gunicorn (included in Pipfile)
+* Python 3.10 or newer
+* Poetry
+* A WSGI server such as Gunicorn (included in pyproject)
 
 ### Running the server
 
 ```bash
 # Install dependencies
-pipenv install
+poetry install
 # Activate the project's virtualenv
-pipenv shell
+poetry shell
 
 # Start the server in debug mode (localhost:5000)
 python app.py

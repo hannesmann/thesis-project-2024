@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "thesis-project-2024"
+version = "0.1.0"
+description = "Risk Assessment of Managed Smartphones using MDM"
+authors = ["Hannes Mann <hmann@kth.se>", "Alexander Wigren <wig@kth.se>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Flask = "^3.0.3"
+gunicorn = "^22.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
