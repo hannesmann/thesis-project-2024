@@ -28,16 +28,16 @@ class ApplicationRepository:
 		self.permissions_table = db.Table(
 			"android_permissions",
 
-			Column("app_id", String, ForeignKey("applications.id")),
-			Column("permission", String),
+			Column("app_id", String(255), ForeignKey("applications.id")),
+			Column("permission", String(128)),
 
 			UniqueConstraint("app_id", "permission")
 		)
 		self.trackers_table = db.Table(
 			"android_trackers",
 
-			Column("app_id", String, ForeignKey("applications.id")),
-			Column("tracker", String),
+			Column("app_id", String(255), ForeignKey("applications.id")),
+			Column("tracker", String(128)),
 
 			UniqueConstraint("app_id", "tracker")
 		)
