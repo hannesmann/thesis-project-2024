@@ -8,11 +8,15 @@ from functools import partial
 from importers.csv import CSVImporter
 from model.app import OperatingSystem
 
-def upload_csv(api, os):
+from repository.apps import ApplicationRepository
+from repository.devices import DevicesRepository
+
+def upload_csv(api, repo, os):
 	if request.method == "POST":
 		try:
 			importer = CSVImporter(request.get_data(as_text=True), os)
 			api.logger.info(f"CSV uploaded with {len(importer.apps)} app(s)")
+			repo.add_importer(importer)
 			return make_success({"apps": len(importer.apps)}), 200
 		except Exception as e:
 			api.logger.error(f"CSV parsing fail: {e}")
@@ -32,9 +36,17 @@ def print_routes(api):
 def print_invalid_route(api, path):
 	return make_error(APIErrorType.INVALID_ROUTE), 404
 
-def register_routes(api):
-	api.add_url_rule("/api/upload_android_csv", "upload_android_csv", partial(upload_csv, api, OperatingSystem.ANDROID), methods=["GET", "POST"])
-	api.add_url_rule("/api/upload_ios_csv", "upload_ios_csv", partial(upload_csv, api, OperatingSystem.IOS), methods=["GET", "POST"])
+def register_routes(api, applications_repo, devices_repo):
+	api.add_url_rule(
+		"/api/upload_android_csv",
+		"upload_android_csv",
+		partial(upload_csv, api, applications_repo, OperatingSystem.ANDROID),
+		methods=["GET", "POST"])
+	api.add_url_rule(
+		"/api/upload_ios_csv",
+		"upload_ios_csv",
+		partial(upload_csv, api, applications_repo, OperatingSystem.IOS),
+		methods=["GET", "POST"])
 
 	api.add_url_rule("/", "print_routes", partial(print_routes, api))
 	api.add_url_rule("/<path:path>", "/<path:path>", partial(print_invalid_route, api))

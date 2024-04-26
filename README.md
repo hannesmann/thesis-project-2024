@@ -40,6 +40,6 @@ Uploading a list of apps manually can be done with cURL:
 
 ```bash
 # Replace "apps.csv" with the name of your CSV file
-curl -H "Content-Type: text/plain" --data-binary "@apps.csv" "http://localhost:8000/api/upload_android_csv"
-curl -H "Content-Type: text/plain" --data-binary "@apps.csv" "http://localhost:8000/api/upload_ios_csv"
+curl --data-binary "@apps.csv" "http://localhost:8000/api/upload_android_csv"
+curl --data-binary "@apps.csv" "http://localhost:8000/api/upload_ios_csv"
 ```

@@ -31,6 +31,3 @@ class DevicesRepository:
 
 			UniqueConstraint("device_id", "app_id")
 		)
-
-# Initialized by app.py
-devices_repo_instance = None
