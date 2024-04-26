@@ -10,15 +10,31 @@ class APIErrorType(Enum):
 
 	UNKNOWN = 1
 
-class APIError():
-	"""Represents an error that occured in the application"""
+	INVALID_ROUTE = 2
+	WRONG_METHOD = 3
 
-	def __init__(self, type, details=None):
-		"""
-		:param type: Error type
-		:param details: Optional error details
-		"""
+	PARSE_ERROR = 4
 
-		self.error = type
-		if details:
-			self.details = details
+def make_success(details=None):
+	if details:
+		return {
+			"status": "SUCCESS",
+			"details": details
+		}
+	else:
+		return {
+			"status": "SUCCESS"
+		}
+
+def make_error(type, details=None):
+	if details:
+		return {
+			"status": "ERROR",
+			"error": type.name,
+			"details": details
+		}
+	else:
+		return {
+			"status": "ERROR",
+			"error": type.name
+		}

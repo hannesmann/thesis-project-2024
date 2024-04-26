@@ -1,26 +1,24 @@
 # Copyright (c) 2024 Hannes Mann, Alexander Wigren
 # See LICENSE for details
 
-from csv import reader
-from importer import DataImporter
+import csv
+from io import StringIO
+from importers.importer import DataImporter
 from model.app import Application
 
-# TODO: Improve CSV format (add app name, etc) and convert existing dataset
 class CSVImporter(DataImporter):
 	"""CSV format: app;count;total devices"""
 
-	def	__init__(self, filename, os):
+	def	__init__(self, text, os):
 		self.apps = {}
+		csv_reader = list(csv.DictReader(StringIO(text), delimiter=";"))
 
-		with open(filename) as file:
-			csv_reader = reader(file, delimiter=";")
-
-			# Skip the first row
-			for row in csv_reader[1:]:
-				self.apps[row["app"]] = {
-					"info": Application(row["app"], os),
-					"count": int(row["count"])
-				}
+		# Skip the first row
+		for row in csv_reader[1:]:
+			self.apps[row["app"]] = {
+				"info": Application(row["app"], os),
+				"count": int(row["count"])
+			}
 
 	def	fetch_discovered_apps(self):
 		return self.apps

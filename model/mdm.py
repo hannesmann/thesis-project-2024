@@ -41,7 +41,7 @@ class Device:
 
 		for app in apps:
 			# List of model.Application
-			if app.package_id:
+			if hasattr(app, "package_id"):
 				self.discovered_apps.add(app.package_id)
 			# List of application package IDs
 			elif isinstance(app, str):
