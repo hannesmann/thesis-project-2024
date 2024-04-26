@@ -3,14 +3,16 @@
 # Copyright (c) 2024 Hannes Mann, Alexander Wigren
 # See LICENSE for details
 
-from flask import Flask, Response
+from flask import Flask, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import DeclarativeBase
+from werkzeug.exceptions import HTTPException
 
 global application_repo_instance, devices_repo_instance
 
 from repository.apps import ApplicationRepository, application_repo_instance
 from repository.devices import DevicesRepository, devices_repo_instance
+
+from api.error import APIError, APIErrorType
 
 # Initialize REST server
 api = Flask(__name__)
@@ -37,6 +39,14 @@ def print_routes():
 @api.route("/<path:path>")
 def print_invalid_route(path):
 	return Response(f"Invalid route: /{path}\r\n\r\n{endpoints}", mimetype="text/plain")
+
+# Default error handler for all types of exceptions
+@api.errorhandler(Exception)
+def handle_exception(error):
+	if error is HTTPException:
+		return Response(jsonify(APIError(APIErrorType.UNKNOWN)), error.code)
+	else:
+		return Response(jsonify(APIError(APIErrorType.UNKNOWN)), 500)
 
 # Run development server if executed directly from Python
 if __name__ == "__main__":
