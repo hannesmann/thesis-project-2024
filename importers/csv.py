@@ -2,7 +2,6 @@
 # See LICENSE for details
 
 import csv
-import datetime
 from io import StringIO
 from importers.importer import DataImporter
 from model.app import Application

@@ -56,14 +56,19 @@ class ApplicationRepository:
 			UniqueConstraint("app_id", "tracker")
 		)
 
+		self.logger = logging.getLogger("app")
+
 		self.events = Queue()
 		self.thread = Thread(target=self.import_thread, daemon=True)
-		self.thread.start()
 
-	# Thread to periodically import data
+		# Run MDM importer immediately
+		self.thread.start()
+		# Run app scanner immediately
+		self.scan_timer()
+
+	# Thread to periodically import data from managed devices
 	def import_thread(self):
-		logger = logging.getLogger("app")
-		logger.info(f"Importer thread started at {datetime.now():%Y-%m-%d %H:%M:%S}")
+		self.logger.info(f"MDM importer thread started at {datetime.now():%Y-%m-%d %H:%M:%S}")
 
 		while True:
 			event = self.events.get()
@@ -71,17 +76,17 @@ class ApplicationRepository:
 			if event.type == ThreadEventType.IMPORT_DATA:
 				importer = event.data
 				next_fetch_time = importer.next_fetch_time()
-				logger.info(f"Fetched data from {type(importer).__name__}")
+				self.logger.info(f"Fetched data from {type(importer).__name__}")
 
 				if next_fetch_time:
 					next_fetch_secs = round((next_fetch_time - datetime.now()).total_seconds())
-					logger.info(f"Next fetch in {next_fetch_secs}s")
+					self.logger.info(f"Next fetch in {next_fetch_secs}s")
 
-					timer = Timer(next_fetch_secs, lambda:
+					next_fetch_timer = Timer(next_fetch_secs, lambda:
 				   		self.events.put(ThreadEvent(ThreadEventType.IMPORT_DATA, importer)))
-					timer.start()
+					next_fetch_timer.start()
 				else:
-					logger.info(f"{type(importer).__name__} done")
+					self.logger.info(f"{type(importer).__name__} done")
 
 			elif ThreadEventType.STOP_THREAD:
 				return
@@ -89,3 +94,10 @@ class ApplicationRepository:
 	# Add a new importer and import from it immediately
 	def add_importer(self, importer):
 		self.events.put(ThreadEvent(ThreadEventType.IMPORT_DATA, importer))
+
+	# Timer to periodically scan for additional application data such as permissions and store page URLs
+	def scan_timer(self):
+		self.logger.info(f"App scanner started at {datetime.now():%Y-%m-%d %H:%M:%S}")
+		# TODO: Increase timeout
+		next_scan_timer = Timer(15, self.scan_timer)
+		next_scan_timer.start()
