@@ -18,6 +18,7 @@ from api.routes import register_routes
 api = Flask(__name__)
 api.config.from_pyfile("config.py")
 
+logging.basicConfig()
 logger = logging.getLogger("app")
 logger.setLevel(api.config["LOG_LEVEL"])
 api.logger.setLevel(api.config["LOG_LEVEL"])
@@ -34,6 +35,7 @@ device_importer_thread = DeviceImporterThread(application_repo_instance, devices
 
 with api.app_context():
     db.create_all()
+    application_repo_instance.load_tables()
 
 register_routes(api, {
     "repos": {
@@ -49,3 +51,6 @@ register_routes(api, {
 # Run development server if executed directly from Python
 if __name__ == "__main__":
 	api.run(debug=True, threaded=False, use_reloader=False)
+
+with api.app_context():
+    application_repo_instance.save_tables()

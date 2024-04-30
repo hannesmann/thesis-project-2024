@@ -13,22 +13,34 @@ class OperatingSystem(Enum):
 class Application:
 	"""Represents a mobile application"""
 
-	def __init__(self, id, os, name=None, permissions=None, trackers=None, store_page_url=None, privacy_policy_url=None):
+	def __init__(self, id, os, name=None, permissions=None, trackers=None, store_page_url=None, privacy_policy_url=None, other_os_id=None):
 		"""
 		:param id: Application ID (Android), Bundle ID (iOS)
 		:param os: Operating system this application was developed for
 		:param name: English name of this application
+
 		:param permissions: Permissions granted to this application
 		:param trackers: Trackers identified in the application
+
 		:param store_page_url: Application store page
 		:param privacy_policy_url: Privacy policy provided by the developer
+
+		:param other_os_id: Application ID for this app on the other operating system (IOS=>ANDROID, ANDROID=>IOS)
 		"""
 
 		self.id = id
 		self.os = os
 		self.name = name
-		self.permissions = permissions
-		self.trackers = trackers
+
+		self.permissions = set()
+		if permissions:
+			for p in permissions:
+				self.permissions.add(p)
+
+		self.trackers = set()
+		if trackers:
+			for t in trackers:
+				self.trackers.add(t)
 
 		if store_page_url:
 			self.store_page_url = urlparse(store_page_url)
@@ -39,6 +51,8 @@ class Application:
 			self.privacy_policy_url = urlparse(privacy_policy_url)
 		else:
 			self.privacy_policy_url = None
+
+		self.other_os_id = id
 
 	# TODO: Can this be determined through MDM?
 	def is_system_app(self):

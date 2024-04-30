@@ -21,7 +21,7 @@ class CSVImporter(DeviceImporter):
 			}
 
 	def	fetch_discovered_apps(self):
-		return self.apps
+		return self.apps.values()
 
 	def	fetch_devices(self):
 		# TODO: CSV should be able to specify devices (apps.csv and devices.csv?)

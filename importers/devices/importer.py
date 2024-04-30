@@ -68,6 +68,11 @@ class DeviceImporterThread:
 
 			if event.type == ThreadEventType.IMPORT_DATA:
 				importer = event.data
+
+				for a in importer.fetch_discovered_apps():
+					# TODO: Add count
+					self.application_repo.add_or_update_app(a["info"])
+
 				next_fetch_time = importer.next_fetch_time()
 				self.logger.info(f"Fetched data from {type(importer).__name__}")
 
