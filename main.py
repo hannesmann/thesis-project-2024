@@ -36,15 +36,16 @@ app_info_importer_thread = AppInfoImporterThread(application_repo_instance)
 device_importer_thread = DeviceImporterThread(application_repo_instance, devices_repo_instance)
 
 with api.app_context():
-    db.create_all()
-    application_repo_instance.load_tables()
+	db.create_all()
+	application_repo_instance.load_tables()
+	devices_repo_instance.load_tables()
 
 register_routes(api, {
-    "repos": {
+	"repos": {
 		"application": application_repo_instance,
 		"devices": devices_repo_instance
 	},
-    "importers": {
+	"importers": {
 		"app_info": app_info_importer_thread,
 		"devices": device_importer_thread
 	}
@@ -53,6 +54,7 @@ register_routes(api, {
 def save_db():
 	with api.app_context():
 		application_repo_instance.save_tables()
+		devices_repo_instance.save_tables()
 
 atexit.register(save_db)
 

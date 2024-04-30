@@ -56,6 +56,7 @@ class ApplicationRepository:
 			current = self.apps[app.unique_id()]
 			if app.name:
 				current.name = app.name
+			# TODO: Replace here if not null?
 			current.permissions = current.permissions.union(app.permissions)
 			current.trackers = current.trackers.union(app.trackers)
 			if app.store_page_url:
@@ -79,8 +80,8 @@ class ApplicationRepository:
 			trackers = set()
 
 			if mappings["os"] == OperatingSystem.ANDROID:
-				permissions_in_db = self.db.session.execute(self.pt.select().where(self.pt.columns.app_id == a.id)).all()
-				trackers_in_db = self.db.session.execute(self.tt.select().where(self.tt.columns.app_id == a.id)).all()
+				permissions_in_db = self.db.session.execute(self.pt.select().where(self.pt.columns.app_id == mappings["id"])).all()
+				trackers_in_db = self.db.session.execute(self.tt.select().where(self.tt.columns.app_id == mappings["id"])).all()
 
 				for	p in permissions_in_db:
 					permissions.add(p._mapping["permission"])
