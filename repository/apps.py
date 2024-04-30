@@ -52,7 +52,7 @@ class ApplicationRepository:
 		)
 
 		self.apps = {}
-		# TODO: Add date
+		# TODO: Add date and individual risk scores
 		self.risk_scores = {}
 		self.logger = logging.getLogger("app")
 
@@ -145,8 +145,8 @@ class ApplicationRepository:
 				for t in a.trackers:
 					exec(self.tt.insert().values(app_id = a.id, tracker = t))
 
-			risk_score = self.risk_scores[a.unique_id()]
-			if risk_score:
+			if a.unique_id() in self.risk_scores:
+				risk_score = self.risk_scores[a.unique_id()]
 				exec(self.rst.delete().where(self.rst.columns.app_unique_id == a.unique_id()))
 				exec(self.rst.insert().values(app_unique_id = a.unique_id(), risk_score = risk_score))
 

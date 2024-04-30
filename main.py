@@ -9,9 +9,11 @@ import atexit
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from importers.apps.importer import AppInfoImporterThread
 from repository.apps import ApplicationRepository
 from repository.devices import DevicesRepository
+
+from analysis.analyzer import AppAnalyzerThread
+from importers.apps.importer import AppInfoImporterThread
 from importers.devices.importer import DeviceImporterThread
 
 from api.routes import register_routes
@@ -32,6 +34,7 @@ db.init_app(api)
 application_repo_instance = ApplicationRepository(db)
 devices_repo_instance = DevicesRepository(db)
 
+app_analyzer_thread = AppAnalyzerThread(application_repo_instance)
 app_info_importer_thread = AppInfoImporterThread(application_repo_instance)
 device_importer_thread = DeviceImporterThread(application_repo_instance, devices_repo_instance)
 
@@ -45,6 +48,7 @@ register_routes(api, {
 		"application": application_repo_instance,
 		"devices": devices_repo_instance
 	},
+	"analysis_thread": app_analyzer_thread,
 	"importers": {
 		"app_info": app_info_importer_thread,
 		"devices": device_importer_thread

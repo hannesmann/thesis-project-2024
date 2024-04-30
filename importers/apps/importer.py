@@ -63,6 +63,7 @@ class AppInfoImporterThread:
 						for i in filter(lambda i: i.os() == a.os, self.importers):
 							i.import_info_for_app(a, self.application_repo)
 
+				# TODO: Don't scan every 15 secs
 				next_scan_timer = Timer(15, lambda:
 					self.events.put(ThreadEvent(ThreadEventType.SCAN_APPS)))
 				next_scan_timer.start()
