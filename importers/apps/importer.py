@@ -19,8 +19,11 @@ class AppInfoImporter(abc.ABC):
 		pass
 
 	@abc.abstractmethod
-	def	fill_app(self, app):
-		"""Returns a new app object with more info (if available) or None"""
+	def	import_info_for_app(self, app, repo):
+		"""
+		Updates the application in the ApplicationRepository if possible
+		This method can add a new app if, for example, an iOS app should be connected with an Android app
+		"""
 		pass
 
 class ThreadEventType(Enum):
