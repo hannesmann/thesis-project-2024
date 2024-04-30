@@ -65,3 +65,7 @@ class Application:
 			return self.name and len(self.permissions) > 0 and len(self.trackers) > 0 and self.store_page_url and self.privacy_policy_url
 		else:
 			return self.name and self.store_page_url and self.privacy_policy_url
+
+	def unique_id(self):
+		"""Return a unique ID across operating systems"""
+		return f"{self.id}_{self.os.name}"

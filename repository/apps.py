@@ -52,20 +52,21 @@ class ApplicationRepository:
 
 	def add_or_update_app(self, app):
 		# Merge existing app
-		if app.id in self.apps:
+		if app.unique_id() in self.apps:
+			current = self.apps[app.unique_id()]
 			if app.name:
-				self.apps[app.id].name = app.name
-			self.apps[app.id].permissions = self.apps[app.id].permissions.union(app.permissions)
-			self.apps[app.id].trackers = self.apps[app.id].trackers.union(app.trackers)
+				current.name = app.name
+			current.permissions = current.permissions.union(app.permissions)
+			current.trackers = current.trackers.union(app.trackers)
 			if app.store_page_url:
-				self.apps[app.id].store_page_url = app.store_page_url
+				current.store_page_url = app.store_page_url
 			if app.privacy_policy_url:
-				self.apps[app.id].privacy_policy_url = app.privacy_policy_url
+				current.privacy_policy_url = app.privacy_policy_url
 			if app.other_os_id:
-				self.apps[app.id].other_os_id = app.other_os_id
+				current.other_os_id = app.other_os_id
 		# Add to the list
 		else:
-			self.apps[app.id] = app
+			self.apps[app.unique_id()] = app
 
 	def load_tables(self):
 		apps_in_db = self.db.session.execute(self.at.select()).all()
