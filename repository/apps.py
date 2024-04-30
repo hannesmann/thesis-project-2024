@@ -3,9 +3,8 @@
 
 import logging
 
-from datetime import datetime
 from model.app import Application, OperatingSystem
-from sqlalchemy import Column, Enum, String, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Enum, String, Double, ForeignKey, UniqueConstraint
 
 class ApplicationRepository:
 	"""Retreives information about applications from various sources and caches it in a database"""
@@ -46,8 +45,15 @@ class ApplicationRepository:
 
 			UniqueConstraint("app_id", "tracker")
 		)
+		self.rst = db.Table(
+			"risk_scores",
+			Column("app_unique_id", String(255), primary_key=True),
+			Column("risk_score", Double),
+		)
 
 		self.apps = {}
+		# TODO: Add date
+		self.risk_scores = {}
 		self.logger = logging.getLogger("app")
 
 	def add_or_update_app(self, app):
@@ -69,6 +75,9 @@ class ApplicationRepository:
 		else:
 			self.apps[app.unique_id()] = app
 
+	def add_or_update_risk_score(self, app_unique_id, risk_score):
+		self.risk_scores[app_unique_id] = float(risk_score)
+
 	def load_tables(self):
 		apps_in_db = self.db.session.execute(self.at.select()).all()
 		self.logger.info(f"Loaded {len(apps_in_db)} app(s) from database")
@@ -88,7 +97,7 @@ class ApplicationRepository:
 				for	t in trackers_in_db:
 					trackers.add(t._mapping["tracker"])
 
-			self.add_or_update_app(Application(
+			app = Application(
 				mappings["id"],
 				mappings["os"],
 				mappings["name"],
@@ -96,7 +105,12 @@ class ApplicationRepository:
 				trackers,
 				mappings["store_page_url"],
 				mappings["privacy_policy_url"],
-				mappings["other_os_id"]))
+				mappings["other_os_id"])
+			self.add_or_update_app(app)
+
+			risk_score_in_db = self.db.session.execute(self.rst.select().where(self.rst.columns.app_unique_id == app.unique_id())).first()
+			if risk_score_in_db:
+				self.add_or_update_risk_score(app.unique_id(), risk_score_in_db)
 
 	def save_tables(self):
 		exec = self.db.session.execute
@@ -130,6 +144,11 @@ class ApplicationRepository:
 				exec(self.tt.delete().where(self.tt.columns.app_id == a.id))
 				for t in a.trackers:
 					exec(self.tt.insert().values(app_id = a.id, tracker = t))
+
+			risk_score = self.risk_scores[a.unique_id()]
+			if risk_score:
+				exec(self.rst.delete().where(self.rst.columns.app_unique_id == a.unique_id()))
+				exec(self.rst.insert().values(app_unique_id = a.unique_id(), risk_score = risk_score))
 
 		self.db.session.commit()
 
