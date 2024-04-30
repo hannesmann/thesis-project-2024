@@ -4,6 +4,8 @@
 # See LICENSE for details
 
 import logging
+import atexit
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
@@ -48,9 +50,12 @@ register_routes(api, {
 	}
 })
 
+def save_db():
+	with api.app_context():
+		application_repo_instance.save_tables()
+
+atexit.register(save_db)
+
 # Run development server if executed directly from Python
 if __name__ == "__main__":
 	api.run(debug=True, threaded=False, use_reloader=False)
-
-with api.app_context():
-    application_repo_instance.save_tables()
