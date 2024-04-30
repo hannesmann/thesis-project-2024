@@ -17,7 +17,7 @@ class ApplicationRepository:
 		self.db = db
 
 		# Define tables for storing details about applications
-		self.applications_table = db.Table(
+		self.at = db.Table(
 			"applications",
 
 			# Applications are identifed by a combination of ID and OS
@@ -30,7 +30,7 @@ class ApplicationRepository:
 
 			Column("other_os_id", String(255))
 		)
-		self.permissions_table = db.Table(
+		self.pt = db.Table(
 			"android_permissions",
 
 			Column("app_id", String(255), ForeignKey("applications.id")),
@@ -38,7 +38,7 @@ class ApplicationRepository:
 
 			UniqueConstraint("app_id", "permission")
 		)
-		self.trackers_table = db.Table(
+		self.tt = db.Table(
 			"android_trackers",
 
 			Column("app_id", String(255), ForeignKey("applications.id")),
@@ -68,40 +68,50 @@ class ApplicationRepository:
 			self.apps[app.id] = app
 
 	def load_tables(self):
-		apps_in_db = self.db.session.execute(self.applications_table.select()).all()
+		apps_in_db = self.db.session.execute(self.at.select()).all()
 		self.logger.info(f"Loaded {len(apps_in_db)} app(s) from database")
 
 		for a in apps_in_db:
 			mappings = a._mapping
 
-			# TODO: Permissions
+			permissions = set()
+			trackers = set()
+
+			if mappings["os"] == OperatingSystem.ANDROID:
+				permissions_in_db = self.db.session.execute(self.pt.select().where(self.pt.columns.app_id == a.id)).all()
+				trackers_in_db = self.db.session.execute(self.tt.select().where(self.tt.columns.app_id == a.id)).all()
+
+				for	p in permissions_in_db:
+					permissions.add(p._mapping["permission"])
+				for	t in trackers_in_db:
+					trackers.add(t._mapping["tracker"])
+
 			self.add_or_update_app(Application(
 				mappings["id"],
 				mappings["os"],
 				mappings["name"],
-				None,
-				None,
+				permissions,
+				trackers,
 				mappings["store_page_url"],
 				mappings["privacy_policy_url"],
 				mappings["other_os_id"]))
 
 	def save_tables(self):
 		exec = self.db.session.execute
-		table = self.applications_table
 		self.logger.info(f"Saving {len(self.apps)} app(s) to database")
 
 		for a in self.apps.values():
-			in_database = exec(table.select().where(table.columns.id == a.id)).first() is not None
+			in_database = exec(self.at.select().where(self.at.columns.id == a.id)).first() is not None
 
 			if in_database:
-				exec(table.update().where(table.columns.id == a.id).values(
+				exec(self.at.update().where(self.at.columns.id == a.id).values(
 					name = a.name,
 					store_page_url = a.store_page_url,
 					privacy_policy_url = a.privacy_policy_url,
 					other_os_id = a.other_os_id
 				))
 			else:
-				exec(table.insert().values(
+				exec(self.at.insert().values(
 					id = a.id,
 					os = a.os,
 					name = a.name,
@@ -109,6 +119,15 @@ class ApplicationRepository:
 					privacy_policy_url = a.privacy_policy_url,
 					other_os_id = a.other_os_id
 				))
+
+			if a.os == OperatingSystem.ANDROID:
+				exec(self.pt.delete().where(self.pt.columns.app_id == a.id))
+				for p in a.permissions:
+					exec(self.pt.insert().values(app_id = a.id, permission = p))
+
+				exec(self.tt.delete().where(self.tt.columns.app_id == a.id))
+				for t in a.trackers:
+					exec(self.tt.insert().values(app_id = a.id, tracker = t))
 
 		self.db.session.commit()
 
