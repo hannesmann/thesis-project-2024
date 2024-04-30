@@ -13,12 +13,13 @@ class OperatingSystem(Enum):
 class Application:
 	"""Represents a mobile application"""
 
-	def __init__(self, id, os, name=None, permissions=None, store_page_url=None, privacy_policy_url=None):
+	def __init__(self, id, os, name=None, permissions=None, trackers=None, store_page_url=None, privacy_policy_url=None):
 		"""
 		:param id: Application ID (Android), Bundle ID (iOS)
 		:param os: Operating system this application was developed for
 		:param name: English name of this application
 		:param permissions: Permissions granted to this application
+		:param trackers: Trackers identified in the application
 		:param store_page_url: Application store page
 		:param privacy_policy_url: Privacy policy provided by the developer
 		"""
@@ -27,6 +28,7 @@ class Application:
 		self.os = os
 		self.name = name
 		self.permissions = permissions
+		self.trackers = trackers
 
 		if store_page_url:
 			self.store_page_url = urlparse(store_page_url)
@@ -46,6 +48,6 @@ class Application:
 		"""Returns true if this app has all the information possible for this operating system"""
 
 		if self.os == OperatingSystem.ANDROID:
-			return self.name and len(self.permissions) > 0 and self.store_page_url and self.privacy_policy_url
+			return self.name and len(self.permissions) > 0 and len(self.trackers) > 0 and self.store_page_url and self.privacy_policy_url
 		else:
 			return self.name and self.store_page_url and self.privacy_policy_url
