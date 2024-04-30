@@ -1,8 +1,8 @@
 # Copyright (c) 2024 Hannes Mann, Alexander Wigren
 # See LICENSE for details
 
-from importer import DataImporter
+from importers.devices.importer import DeviceImporter
 
 # TODO
-class IntuneImporter(DataImporter):
+class IntuneImporter(DeviceImporter):
 	pass

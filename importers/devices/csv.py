@@ -3,10 +3,10 @@
 
 import csv
 from io import StringIO
-from importers.importer import DataImporter
+from importers.devices.importer import DeviceImporter
 from model.app import Application
 
-class CSVImporter(DataImporter):
+class CSVImporter(DeviceImporter):
 	"""CSV format: app;count;total devices"""
 
 	def	__init__(self, text, os):
