@@ -2,9 +2,9 @@
 # See LICENSE for details
 
 import abc
-import datetime
 import logging
 
+from datetime import datetime
 from enum import Enum
 from repository.apps import ApplicationRepository
 from threading import Thread, Timer

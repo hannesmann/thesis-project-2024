@@ -37,12 +37,12 @@ def register_routes(api, objects):
 	api.add_url_rule(
 		"/api/upload_android_csv",
 		"upload_android_csv",
-		partial(upload_csv, api, objects["devices_importer"], OperatingSystem.ANDROID),
+		partial(upload_csv, api, objects["importers"]["devices"], OperatingSystem.ANDROID),
 		methods=["GET", "POST"])
 	api.add_url_rule(
 		"/api/upload_ios_csv",
 		"upload_ios_csv",
-		partial(upload_csv, api, objects["devices_importer"], OperatingSystem.IOS),
+		partial(upload_csv, api, objects["importers"]["devices"], OperatingSystem.IOS),
 		methods=["GET", "POST"])
 
 	api.add_url_rule("/", "print_routes", partial(print_routes, api))

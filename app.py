@@ -7,6 +7,7 @@ import logging
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from importers.apps.importer import AppInfoImporterThread
 from repository.apps import ApplicationRepository
 from repository.devices import DevicesRepository
 from importers.devices.importer import DeviceImporterThread
@@ -28,7 +29,8 @@ db.init_app(api)
 application_repo_instance = ApplicationRepository(db)
 devices_repo_instance = DevicesRepository(db)
 
-device_importer_thread = DeviceImporterThread(application_repo_instance)
+app_info_importer_thread = AppInfoImporterThread(application_repo_instance)
+device_importer_thread = DeviceImporterThread(application_repo_instance, devices_repo_instance)
 
 with api.app_context():
     db.create_all()
@@ -38,9 +40,12 @@ register_routes(api, {
 		"application": application_repo_instance,
 		"devices": devices_repo_instance
 	},
-    "device_importer": device_importer_thread
+    "importers": {
+		"app_info": app_info_importer_thread,
+		"devices": device_importer_thread
+	}
 })
 
 # Run development server if executed directly from Python
 if __name__ == "__main__":
-	api.run(debug=True)
+	api.run(debug=True, threaded=False, use_reloader=False)

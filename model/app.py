@@ -39,6 +39,13 @@ class Application:
 			self.privacy_policy_url = None
 
 	# TODO: Can this be determined through MDM?
-	def is_system_app():
+	def is_system_app(self):
 		return False
 
+	def is_complete_app(self):
+		"""Returns true if this app has all the information possible for this operating system"""
+
+		if self.os == OperatingSystem.ANDROID:
+			return self.name and len(self.permissions) > 0 and self.store_page_url and self.privacy_policy_url
+		else:
+			return self.name and self.store_page_url and self.privacy_policy_url

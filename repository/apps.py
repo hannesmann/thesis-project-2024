@@ -46,13 +46,3 @@ class ApplicationRepository:
 		)
 
 		self.logger = logging.getLogger("app")
-
-		# Run app scanner immediately
-		self.scan_timer()
-
-	# Timer to periodically scan for additional application data such as permissions and store page URLs
-	def scan_timer(self):
-		self.logger.info(f"App scanner started at {datetime.now():%Y-%m-%d %H:%M:%S}")
-		# TODO: Increase timeout
-		next_scan_timer = Timer(15, self.scan_timer)
-		next_scan_timer.start()
