@@ -52,7 +52,7 @@ class Application:
 		else:
 			self.privacy_policy_url = None
 
-		self.other_os_id = id
+		self.other_os_id = other_os_id
 
 	# TODO: Can this be determined through MDM?
 	def is_system_app(self):
