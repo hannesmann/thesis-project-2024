@@ -5,6 +5,10 @@
 
 import logging
 import atexit
+import analysis
+import analysis.core
+
+from analysis.gpt import jonas
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -19,6 +23,9 @@ from importers.devices.importer import DeviceImporterThread
 from api.routes import register_routes
 
 # Initialize REST server
+
+#analysis.gpt.jonas()
+
 api = Flask(__name__)
 api.config.from_pyfile("config.py")
 
@@ -65,3 +72,8 @@ atexit.register(save_db)
 # Run development server if executed directly from Python
 if __name__ == "__main__":
 	api.run(debug=True, threaded=False, use_reloader=False)
+
+# Test the gpt thingymading lol remove this after testing
+
+
+
