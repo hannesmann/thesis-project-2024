@@ -40,6 +40,8 @@ class AppInfoImporterThread:
 
 	def __init__(self, application_repo):
 		self.application_repo = application_repo
+		# TODO: Add the importers here (or an add importer method)
+		self.importers = []
 		self.logger = logging.getLogger("app")
 
 		self.events = Queue()
@@ -55,7 +57,13 @@ class AppInfoImporterThread:
 			event = self.events.get()
 
 			if event.type == ThreadEventType.SCAN_APPS:
-				# TODO: Increase timeout
+				# TODO: Access from multiple threads?
+				for a in self.application_repo.apps.values():
+					if not a.is_complete_app():
+						for i in filter(lambda i: i.os() == a.os, self.importers):
+							i.import_info_for_app(a, self.application_repo)
+
+				# TODO: Don't scan every 15 secs
 				next_scan_timer = Timer(15, lambda:
 					self.events.put(ThreadEvent(ThreadEventType.SCAN_APPS)))
 				next_scan_timer.start()
