@@ -8,11 +8,12 @@ import atexit
 import analysis
 import analysis.core
 
-from analysis.gpt import jonas
+#from analysis.gpt import jonas
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from importers.apps.appstore import AppStoreImporter
 from repository.apps import ApplicationRepository
 from repository.devices import DevicesRepository
 
@@ -41,14 +42,16 @@ db.init_app(api)
 application_repo_instance = ApplicationRepository(db)
 devices_repo_instance = DevicesRepository(db)
 
-app_analyzer_thread = AppAnalyzerThread(application_repo_instance)
-app_info_importer_thread = AppInfoImporterThread(application_repo_instance)
-device_importer_thread = DeviceImporterThread(application_repo_instance, devices_repo_instance)
-
 with api.app_context():
 	db.create_all()
 	application_repo_instance.load_tables()
 	devices_repo_instance.load_tables()
+
+app_analyzer_thread = AppAnalyzerThread(application_repo_instance)
+device_importer_thread = DeviceImporterThread(application_repo_instance, devices_repo_instance)
+
+app_info_importer_thread = AppInfoImporterThread(application_repo_instance)
+app_info_importer_thread.add_importer(AppStoreImporter())
 
 register_routes(api, {
 	"repos": {

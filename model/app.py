@@ -2,7 +2,7 @@
 # See LICENSE for details
 
 from enum import Enum
-from urllib.parse import urlparse
+from model.system_app_ids import ios_system_apps
 
 class OperatingSystem(Enum):
 	"""Enumeration of supported mobile operating systems"""
@@ -43,19 +43,20 @@ class Application:
 				self.trackers.add(t)
 
 		if store_page_url:
-			self.store_page_url = urlparse(store_page_url)
+			self.store_page_url = store_page_url
 		else:
 			self.store_page_url = None
 
 		if privacy_policy_url:
-			self.privacy_policy_url = urlparse(privacy_policy_url)
+			self.privacy_policy_url = privacy_policy_url
 		else:
 			self.privacy_policy_url = None
 
 		self.other_os_id = other_os_id
 
-	# TODO: Can this be determined through MDM?
 	def is_system_app(self):
+		if self.os == OperatingSystem.IOS:
+			return self.id.lower() in ios_system_apps
 		return False
 
 	def is_complete_app(self):

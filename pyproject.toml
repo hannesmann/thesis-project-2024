@@ -26,6 +26,9 @@ pycryptodome = "^3.18.0"
 pymupdf = "^1.22.5"
 transformers = "^4.33.1"
 python-dotenv = "^0.21.1"
+ratelimit = "^2.2.1"
+requests = "^2.31.0"
+beautifulsoup4 = "^4.12.3"
 
 [build-system]
 requires = ["poetry-core"]

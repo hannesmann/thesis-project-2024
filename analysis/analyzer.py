@@ -54,13 +54,14 @@ class AppAnalyzerThread:
 			event = self.events.get()
 
 			if event.type == ThreadEventType.ANALYZE_APPS:
-				# TODO: Access from multiple threads?
 				risk_score = 0
 
 				for app in self.application_repo.apps.values():
 					for analyzer in self.analyzers:
 						# TODO: Max value here instead of mean value?
 						risk_score = (risk_score + analyzer.analyze_app(app)) / 2.0
+
+				self.application_repo.add_or_update_risk_score(app.unique_id(), risk_score)
 
 				# TODO: Don't analyze every 15 secs
 				next_analysis_timer = Timer(15, lambda:

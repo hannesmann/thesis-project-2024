@@ -15,8 +15,10 @@ class CSVImporter(DeviceImporter):
 
 		# Skip the first row
 		for row in csv_reader[1:]:
-			self.apps[row["app"]] = {
-				"info": Application(row["app"], os),
+			# Fix up the app ID
+			app_id = row["app"].strip(". ")
+			self.apps[app_id] = {
+				"info": Application(app_id, os),
 				"count": int(row["count"])
 			}
 

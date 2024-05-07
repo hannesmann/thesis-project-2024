@@ -6,6 +6,7 @@ import logging
 
 from datetime import datetime
 from enum import Enum
+import traceback
 from repository.apps import ApplicationRepository
 from threading import Thread, Timer
 from queue import Queue
@@ -40,14 +41,18 @@ class AppInfoImporterThread:
 
 	def __init__(self, application_repo):
 		self.application_repo = application_repo
-		# TODO: Add the importers here (or an add importer method)
 		self.importers = []
 		self.logger = logging.getLogger("app")
 
 		self.events = Queue()
+		self.events.put(ThreadEvent(ThreadEventType.SCAN_APPS))
 		self.thread = Thread(target=self.import_thread, daemon=True)
 
 		self.thread.start()
+
+	def add_importer(self, importer):
+		self.logger.info(f"New app info importer: {type(importer).__name__}")
+		self.importers.append(importer)
 
 	# Thread to periodically import data from app stores and related sources
 	def import_thread(self):
@@ -59,9 +64,14 @@ class AppInfoImporterThread:
 			if event.type == ThreadEventType.SCAN_APPS:
 				# TODO: Access from multiple threads?
 				for a in self.application_repo.apps.values():
-					if not a.is_complete_app():
+					# Don't check system apps or apps that we already have all info available for
+					should_check_app = not a.is_complete_app() and not a.is_system_app()
+					if should_check_app:
 						for i in filter(lambda i: i.os() == a.os, self.importers):
-							i.import_info_for_app(a, self.application_repo)
+							try:
+								i.import_info_for_app(a, self.application_repo)
+							except Exception:
+								self.logger.error(f"Importer {type(i).__name__} failed: {traceback.format_exc()}")
 
 				# TODO: Don't scan every 15 secs
 				next_scan_timer = Timer(15, lambda:
