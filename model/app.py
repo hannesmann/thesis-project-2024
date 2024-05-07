@@ -2,7 +2,7 @@
 # See LICENSE for details
 
 from enum import Enum
-from model.system_app_ids import ios_system_apps
+from model.system_app_ids import android_system_apps, ios_system_apps
 
 class OperatingSystem(Enum):
 	"""Enumeration of supported mobile operating systems"""
@@ -42,20 +42,15 @@ class Application:
 			for t in trackers:
 				self.trackers.add(t)
 
-		if store_page_url:
-			self.store_page_url = store_page_url
-		else:
-			self.store_page_url = None
-
-		if privacy_policy_url:
-			self.privacy_policy_url = privacy_policy_url
-		else:
-			self.privacy_policy_url = None
+		self.store_page_url = store_page_url
+		self.privacy_policy_url = privacy_policy_url
 
 		self.other_os_id = other_os_id
 
 	def is_system_app(self):
-		if self.os == OperatingSystem.IOS:
+		if self.os == OperatingSystem.ANDROID:
+			return self.id.lower() in android_system_apps
+		elif self.os == OperatingSystem.IOS:
 			return self.id.lower() in ios_system_apps
 		return False
 
