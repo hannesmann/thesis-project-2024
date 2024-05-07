@@ -14,6 +14,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from importers.apps.appstore import AppStoreImporter
+from importers.apps.playstore import PlayStoreImporter
 from repository.apps import ApplicationRepository
 from repository.devices import DevicesRepository
 
@@ -52,6 +53,7 @@ device_importer_thread = DeviceImporterThread(application_repo_instance, devices
 
 app_info_importer_thread = AppInfoImporterThread(application_repo_instance)
 app_info_importer_thread.add_importer(AppStoreImporter())
+app_info_importer_thread.add_importer(PlayStoreImporter())
 
 register_routes(api, {
 	"repos": {

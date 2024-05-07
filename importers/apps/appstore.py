@@ -30,7 +30,7 @@ class AppStoreImporter(AppInfoImporter):
 		res = requests.get(app.store_page_url).text
 		page = BeautifulSoup(res, "html.parser")
 		for link in page.find_all("a"):
-			if link.get_text(strip=True) == "Privacy Policy":
+			if link.get_text(strip=True).lower() == "privacy policy":
 				return link.get("href")
 		return None
 
