@@ -29,6 +29,7 @@ python-dotenv = "^0.21.1"
 ratelimit = "^2.2.1"
 requests = "^2.31.0"
 beautifulsoup4 = "^4.12.3"
+validators = "^0.28.1"
 
 [build-system]
 requires = ["poetry-core"]

@@ -13,8 +13,7 @@ import analysis.core
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-from importers.apps.appstore import AppStoreImporter
-from importers.apps.playstore import PlayStoreImporter
+from importers.apps.urls import AppStoreImporter, PlayStoreImporter
 from repository.apps import ApplicationRepository
 from repository.devices import DevicesRepository
 
