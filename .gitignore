@@ -161,3 +161,6 @@ cython_debug/
 
 # Development SQLite database
 development.db
+
+# Personal user configuration
+/config.py

@@ -16,6 +16,7 @@ The project implements a proof-of-concept application for performing data collec
 * Python 3.10 or newer
 * Poetry
 * A WSGI server such as Gunicorn (included in pyproject)
+* wkhtmltopdf (If you have trouble with the PDF being unreadable by GPT, use a binary from [wkhtmltopdf.org](https://wkhtmltopdf.org/downloads.html))
 
 ### Running the server
 

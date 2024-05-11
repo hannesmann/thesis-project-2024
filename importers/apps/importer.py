@@ -2,6 +2,7 @@
 # See LICENSE for details
 
 import abc
+import copy
 import logging
 
 from datetime import datetime
@@ -69,7 +70,7 @@ class AppInfoImporterThread:
 					if should_check_app:
 						for i in filter(lambda i: i.os() == a.os, self.importers):
 							try:
-								i.import_info_for_app(a, self.application_repo)
+								i.import_info_for_app(copy.deepcopy(a), self.application_repo)
 							except Exception:
 								self.logger.error(f"Importer {type(i).__name__} failed: {traceback.format_exc()}")
 

@@ -30,6 +30,7 @@ ratelimit = "^2.2.1"
 requests = "^2.31.0"
 beautifulsoup4 = "^4.12.3"
 validators = "^0.28.1"
+pdfkit = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]
