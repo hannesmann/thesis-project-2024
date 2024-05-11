@@ -17,8 +17,6 @@ class ExodusImporter(AppInfoImporter):
 	@sleep_and_retry
 	@limits(calls=30, period=1)
 	def import_info_for_app(self, app, repo):
-		logging.getLogger("app").info(f"ExodusImporter checking {app.id}")
-
 		# TODO: Apps can have zero trackers
 		if len(app.permissions) > 0 and len(app.trackers) > 0:
 			return

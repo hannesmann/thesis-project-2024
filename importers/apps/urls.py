@@ -52,7 +52,6 @@ class AppStoreImporter(AppInfoImporter):
 		return None
 
 	def	import_info_for_app(self, app, repo):
-		logging.getLogger("app").info(f"AppStoreImporter checking {app.id}")
 		if not app.store_page_url:
 			app.store_page_url = self.import_store_page_url(app)
 			if app.store_page_url:
@@ -82,7 +81,6 @@ class PlayStoreImporter(AppInfoImporter):
 		return None
 
 	def	import_info_for_app(self, app, repo):
-		logging.getLogger("app").info(f"PlayStoreImporter checking {app.id}")
 		if not app.store_page_url:
 			# The Play Store URL is predictable based on the app ID
 			app.store_page_url = f"https://play.google.com/store/apps/details?id={app.id}"

@@ -47,8 +47,8 @@ class AppInfoImporterThread:
 
 		self.events = Queue()
 		self.events.put(ThreadEvent(ThreadEventType.SCAN_APPS))
-		self.thread = Thread(target=self.import_thread, daemon=True)
 
+		self.thread = Thread(target=self.import_thread, daemon=True)
 		self.thread.start()
 
 	def add_importer(self, importer):
@@ -70,6 +70,7 @@ class AppInfoImporterThread:
 					if should_check_app:
 						for i in filter(lambda i: i.os() == a.os, self.importers):
 							try:
+								self.logger.info(f"{type(i).__name__} checking {a.id}")
 								i.import_info_for_app(copy.deepcopy(a), self.application_repo)
 							except Exception:
 								self.logger.error(f"Importer {type(i).__name__} failed: {traceback.format_exc()}")

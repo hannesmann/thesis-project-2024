@@ -43,13 +43,13 @@ class GPTAnalyzer(AppAnalyzer):
 		)
 
 		# This is the O'Loughlin type query.
-		query = """Fill in the list on this format with Y for yes or N for no in the place of X for the relevant question.\n
-			Does the company/application collect any personally identifiable information such as e-mail address, real names, phone number or location. [X]\n
-			Does the document mention a login process using a pincode, password or similar safety measure to use the service? [X]\n
-			Does the document mention that the information is stored encrypted or that it stays locally on the device? [X]\n
-			Does the document mention the information storage and sharing procedures OR that information is stored locally? [X]\n
-			Does the document mention that users can delete their information OR that information is stored locally? [X]\n
-			Does the document mention that users can edit their information OR that information is stored locally? [X]\n
+		query = """Fill in the list on this format with Y for yes or N for no in the place of X for the relevant question.
+			Does the company/application collect any personally identifiable information such as e-mail address, real names, phone number or location. [X]
+			Does the document mention a login process using a pincode, password or similar safety measure to use the service? [X]
+			Does the document mention that the information is stored encrypted or that it stays locally on the device? [X]
+			Does the document mention the information storage and sharing procedures OR that information is stored locally? [X]
+			Does the document mention that users can delete their information OR that information is stored locally? [X]
+			Does the document mention that users can edit their information OR that information is stored locally? [X]
 			Does the document state that users can use the service/application WITHOUT entering any personally identifiable information OR that information is stored locally? [X]"""
 
 		# Send query and get response.

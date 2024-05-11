@@ -43,8 +43,9 @@ class AppAnalyzerThread:
 		self.logger = logging.getLogger("app")
 
 		self.events = Queue()
-		self.thread = Thread(target=self.analysis_thread, daemon=True)
+		self.events.put(ThreadEvent(ThreadEventType.ANALYZE_APPS))
 
+		self.thread = Thread(target=self.analysis_thread, daemon=True)
 		self.thread.start()
 
 	def add_analyzer(self, analyzer):
@@ -62,14 +63,16 @@ class AppAnalyzerThread:
 				risk_score = 0
 
 				for app in self.application_repo.apps.values():
-					for a in self.analyzers:
+					for analyzer in self.analyzers:
 						try:
+							self.logger.info(f"{type(analyzer).__name__} checking {app.id}")
+							analyzer_score = analyzer.analyze_app(app)
 							# TODO: Max value here instead of mean value?
-							risk_score = (risk_score + a.analyze_app(app)) / 2.0
+							risk_score = (risk_score + analyzer_score) / 2.0
+							self.logger.info(f"Risk score for {app.id} is now {risk_score}")
 						except Exception:
-							self.logger.error(f"Analyzer {type(a).__name__} failed: {traceback.format_exc()}")
-
-				self.application_repo.add_or_update_risk_score(app.unique_id(), risk_score)
+							self.logger.error(f"Analyzer {type(analyzer).__name__} failed: {traceback.format_exc()}")
+					self.application_repo.add_or_update_risk_score(app.unique_id(), risk_score)
 
 				# TODO: Don't analyze every 15 secs
 				next_analysis_timer = Timer(15, lambda:
