@@ -62,7 +62,7 @@ if not api.config["OPENAI_API_KEY"]:
 	logger.fatal("OPENAI_API_KEY is not set. The GPT analyzer needs access to the OpenAI API to function.")
 	quit()
 
-app_analyzer_thread.add_analyzer(GPTAnalyzer(api.config["OPENAI_API_KEY"]))
+app_analyzer_thread.add_analyzer(GPTAnalyzer(api.config["OPENAI_API_KEY"], api.config["OPENAI_MODEL"]))
 
 register_routes(api, {
 	"repos": {

@@ -65,7 +65,7 @@ class AppAnalyzerThread:
 				for app in self.application_repo.apps.values():
 					for analyzer in self.analyzers:
 						try:
-							self.logger.info(f"{type(analyzer).__name__} checking {app.id}")
+							self.logger.info(f"{type(analyzer).__name__} ({analyzer.name()}) checking {app.id}")
 							analyzer_score = analyzer.analyze_app(app)
 							# TODO: Max value here instead of mean value?
 							risk_score = (risk_score + analyzer_score) / 2.0

@@ -10,12 +10,18 @@ from analysis.core.qa import query_folder
 from analysis.core.utils import get_llm
 
 class GPTAnalyzer(AppAnalyzer):
-	def __init__(self, api_key):
+	def __init__(self, api_key, model):
 		super().__init__()
+
 		self.api_key = api_key
+		self.model = model
 
 	def name(self):
-		return 'GPT'
+		if "gpt-4" in self.model:
+			return "GPT-4"
+		elif "gpt-3.5-turbo" in self.model:
+			return "GPT-3.5 Turbo"
+		return self.model
 
 	@sleep_and_retry
 	@limits(calls=1, period=5)
@@ -27,9 +33,6 @@ class GPTAnalyzer(AppAnalyzer):
 		EMBEDDING = "openai"
 		VECTOR_STORE = "faiss"
 
-		#MODEL_LIST = ["gpt-3.5-turbo", "gpt-4"]
-		model = "gpt-4"
-
 		pdfkit.from_url(app.privacy_policy_url, 'outfile.pdf')
 		uploaded_file = open('outfile.pdf', "rb")
 		file = read_file(uploaded_file)
@@ -40,8 +43,8 @@ class GPTAnalyzer(AppAnalyzer):
 		# Index and create embeddings.
 		folder_index = embed_files(
 			files=[chunked_file],
-			embedding=EMBEDDING if model != "debug" else "debug",
-			vector_store=VECTOR_STORE if model != "debug" else "debug",
+			embedding=EMBEDDING if self.model != "debug" else "debug",
+			vector_store=VECTOR_STORE if self.model != "debug" else "debug",
 			openai_api_key=self.api_key,
 		)
 
@@ -56,7 +59,7 @@ class GPTAnalyzer(AppAnalyzer):
 			Does the document state that users can use the service/application WITHOUT entering any personally identifiable information OR that information is stored locally? [X]"""
 
 		# Send query and get response.
-		llm = get_llm(model=model, openai_api_key=self.api_key, temperature=0)
+		llm = get_llm(model=self.model, openai_api_key=self.api_key, temperature=0)
 		result = query_folder(
 			folder_index=folder_index,
 			query=query,
