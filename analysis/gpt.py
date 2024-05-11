@@ -1,4 +1,5 @@
 import pdfkit
+from ratelimit import sleep_and_retry, limits
 
 from analysis.analyzer import AppAnalyzer
 
@@ -16,6 +17,8 @@ class GPTAnalyzer(AppAnalyzer):
 	def name(self):
 		return 'GPT'
 
+	@sleep_and_retry
+	@limits(calls=1, period=5)
 	def analyze_app(self, app):
 		if not app.privacy_policy_url:
 			# TODO: Log/throw
