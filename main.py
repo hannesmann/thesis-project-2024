@@ -5,14 +5,12 @@
 
 import logging
 import atexit
-import analysis
-import analysis.core
-
-#from analysis.gpt import jonas
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
+from analysis.gpt import GPTAnalyzer
+from importers.apps.exodus import ExodusImporter
 from importers.apps.urls import AppStoreImporter, PlayStoreImporter
 from repository.apps import ApplicationRepository
 from repository.devices import DevicesRepository
@@ -24,9 +22,6 @@ from importers.devices.importer import DeviceImporterThread
 from api.routes import register_routes
 
 # Initialize REST server
-
-#analysis.gpt.jonas()
-
 api = Flask(__name__)
 api.config.from_pyfile("config.py")
 
@@ -47,12 +42,27 @@ with api.app_context():
 	application_repo_instance.load_tables()
 	devices_repo_instance.load_tables()
 
-app_analyzer_thread = AppAnalyzerThread(application_repo_instance)
+app_info_importer_thread = AppInfoImporterThread(application_repo_instance)
 device_importer_thread = DeviceImporterThread(application_repo_instance, devices_repo_instance)
 
-app_info_importer_thread = AppInfoImporterThread(application_repo_instance)
+# Add store importers
 app_info_importer_thread.add_importer(AppStoreImporter())
 app_info_importer_thread.add_importer(PlayStoreImporter())
+
+# Add Exodus importer
+if api.config["EXODUS_API_KEY"]:
+	app_info_importer_thread.add_importer(ExodusImporter(api.config["EXODUS_API_KEY"]))
+else:
+	logger.warning("EXODUS_API_KEY is not set. The Exodus Privacy API will not be used for fetching permissions and trackers.")
+
+app_analyzer_thread = AppAnalyzerThread(application_repo_instance)
+
+# Add GPT analyzer
+if not api.config["OPENAI_API_KEY"]:
+	logger.fatal("OPENAI_API_KEY is not set. The GPT analyzer needs access to the OpenAI API to function.")
+	quit()
+
+app_analyzer_thread.add_analyzer(GPTAnalyzer(api.config["OPENAI_API_KEY"]))
 
 register_routes(api, {
 	"repos": {

@@ -6,6 +6,7 @@ import logging
 
 from datetime import datetime
 from enum import Enum
+import traceback
 from repository.apps import ApplicationRepository
 from threading import Thread, Timer
 from queue import Queue
@@ -46,6 +47,10 @@ class AppAnalyzerThread:
 
 		self.thread.start()
 
+	def add_analyzer(self, analyzer):
+		self.logger.info(f"New app analyzer: {type(analyzer).__name__}")
+		self.analyzers.append(analyzer)
+
 	# Thread to periodically analyze apps
 	def analysis_thread(self):
 		self.logger.info(f"App analysis thread started at {datetime.now():%Y-%m-%d %H:%M:%S}")
@@ -57,9 +62,12 @@ class AppAnalyzerThread:
 				risk_score = 0
 
 				for app in self.application_repo.apps.values():
-					for analyzer in self.analyzers:
-						# TODO: Max value here instead of mean value?
-						risk_score = (risk_score + analyzer.analyze_app(app)) / 2.0
+					for a in self.analyzers:
+						try:
+							# TODO: Max value here instead of mean value?
+							risk_score = (risk_score + a.analyze_app(app)) / 2.0
+						except Exception:
+							self.logger.error(f"Analyzer {type(a).__name__} failed: {traceback.format_exc()}")
 
 				self.application_repo.add_or_update_risk_score(app.unique_id(), risk_score)
 

@@ -1,3 +1,4 @@
+import logging
 import requests
 
 from importers.apps.importer import AppInfoImporter
@@ -7,6 +8,7 @@ from ratelimit import limits, sleep_and_retry
 
 class ExodusImporter(AppInfoImporter):
 	def __init__(self, token):
+		super().__init__()
 		self.token = token
 
 	def os(self):
@@ -15,6 +17,12 @@ class ExodusImporter(AppInfoImporter):
 	@sleep_and_retry
 	@limits(calls=30, period=1)
 	def import_info_for_app(self, app, repo):
+		logging.getLogger("app").info(f"ExodusImporter checking {app.id}")
+
+		# TODO: Apps can have zero trackers
+		if len(app.permissions) > 0 and len(app.trackers) > 0:
+			return
+
 		# The Exodus API has occasionally given us trouble due to misconfigured caches on their end. Hopefully it keeps working.
 		# For demonstration purposes it is probably a good idea to use some pre-fetched JSON to avoid making live calls to the API
 		# in front of an audience.
@@ -37,7 +45,9 @@ class ExodusImporter(AppInfoImporter):
 
 		# Set the app attributes
 		app.permissions = set(permissions)
+		logging.getLogger("app").info(f"Got {len(app.permissions)} permission(s) for {app.id}")
 		app.trackers = set(trackers)
+		logging.getLogger("app").info(f"Got {len(app.trackers)} tracker(s) for {app.id}")
 
 		# Add to repo and return
 		repo.add_or_update_app(app)
