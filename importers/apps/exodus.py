@@ -3,6 +3,8 @@ import requests
 from importers.apps.importer import AppInfoImporter
 from model.app import OperatingSystem
 
+from ratelimit import limits, sleep_and_retry
+
 class ExodusImporter(AppInfoImporter):
 	def __init__(self, token):
 		self.token = token
@@ -10,6 +12,8 @@ class ExodusImporter(AppInfoImporter):
 	def os(self):
 		return OperatingSystem.ANDROID
 
+	@sleep_and_retry
+	@limits(calls=30, period=1)
 	def import_info_for_app(self, app, repo):
 		# The Exodus API has occasionally given us trouble due to misconfigured caches on their end. Hopefully it keeps working.
 		# For demonstration purposes it is probably a good idea to use some pre-fetched JSON to avoid making live calls to the API
