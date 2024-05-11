@@ -13,8 +13,7 @@ class CSVImporter(DeviceImporter):
 		self.apps = {}
 		csv_reader = list(csv.DictReader(StringIO(text), delimiter=";"))
 
-		# Skip the first row
-		for row in csv_reader[1:]:
+		for row in csv_reader:
 			# Fix up the app ID
 			app_id = row["app"].strip(". ")
 			self.apps[app_id] = {
