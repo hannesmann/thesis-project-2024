@@ -1,9 +1,10 @@
+from io import BytesIO
 import pdfkit
 from ratelimit import sleep_and_retry, limits
 
 from analysis.analyzer import AppAnalyzer
 
-from analysis.core.parsing import read_file
+from analysis.core.parsing import PdfFile
 from analysis.core.chunking import chunk_file
 from analysis.core.embedding import embed_files
 from analysis.core.qa import query_folder
@@ -33,9 +34,10 @@ class GPTAnalyzer(AppAnalyzer):
 		EMBEDDING = "openai"
 		VECTOR_STORE = "faiss"
 
-		pdfkit.from_url(app.privacy_policy_url, 'outfile.pdf')
-		uploaded_file = open('outfile.pdf', "rb")
-		file = read_file(uploaded_file)
+		# Use wkhtmltopdf to fetch and convert privacy policy
+		pdf = BytesIO(pdfkit.from_url(app.privacy_policy_url))
+		pdf.name = app.privacy_policy_url
+		file = PdfFile.from_bytes(pdf)
 
 		# Chunk file before analysis.
 		chunked_file = chunk_file(file, chunk_size=300, chunk_overlap=0)
