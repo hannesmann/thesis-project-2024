@@ -2,14 +2,14 @@ import requests
 
 from analysis.analyzer import AppAnalyzer
 
-class Tracker_Analyzer(AppAnalyzer):
+class TrackerAnalyzer(AppAnalyzer):
 	def __init__(self, token):
 		super().__init__()
 		self.token = token
-	
+
 	def name(self):
-		return 'Tracker_Analyzer'
-	
+		return 'Exodus Privacy Trackers'
+
 	def analyze_app(self, app):
 
 		# According Binns et al. the median number of trackers embedded in 1 000 000 investigated apps was 10. Q1 and Q3 were 5 and 18 respectively.
@@ -32,7 +32,7 @@ class Tracker_Analyzer(AppAnalyzer):
 
 	# This method return a detailed list of all the trackers present in the application.
 	def tracker_report(self, app):
-		
+
 		trackerBlob = requests.get(f'https://reports.exodus-privacy.eu.org/api/trackers', headers = {'Authorization': f'Token {self.token}'})
 
 		trackerData = trackerBlob.json()
@@ -42,7 +42,7 @@ class Tracker_Analyzer(AppAnalyzer):
 		reportlist = []
 
 		for tracker in trackerlist:
-		
+
 			reportlist.append(trackerData['trackers'][tracker])
 
 		return reportlist

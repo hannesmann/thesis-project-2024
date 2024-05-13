@@ -10,8 +10,11 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
 from analysis.gpt import GPTAnalyzer
+from analysis.trackers import TrackerAnalyzer
+
 from importers.apps.exodus import ExodusImporter
 from importers.apps.urls import AppStoreImporter, PlayStoreImporter
+
 from repository.apps import ApplicationRepository
 from repository.devices import DevicesRepository
 
@@ -63,6 +66,8 @@ if not api.config["OPENAI_API_KEY"]:
 	quit()
 
 app_analyzer_thread.add_analyzer(GPTAnalyzer(api.config["OPENAI_API_KEY"], api.config["OPENAI_MODEL"]))
+if api.config["EXODUS_API_KEY"]:
+	app_analyzer_thread.add_analyzer(TrackerAnalyzer(api.config["EXODUS_API_KEY"]))
 
 register_routes(api, {
 	"repos": {
