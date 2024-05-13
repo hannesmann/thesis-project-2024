@@ -60,9 +60,9 @@ class AppAnalyzerThread:
 			event = self.events.get()
 
 			if event.type == ThreadEventType.ANALYZE_APPS:
-				risk_score = 0
-
 				for app in self.application_repo.apps.values():
+					risk_score = 0
+
 					for analyzer in self.analyzers:
 						try:
 							self.logger.info(f"{type(analyzer).__name__} ({analyzer.name()}) checking {app.id}")
@@ -72,6 +72,7 @@ class AppAnalyzerThread:
 							self.logger.info(f"Risk score for {app.id} is now {risk_score}")
 						except Exception:
 							self.logger.error(f"Analyzer {type(analyzer).__name__} failed: {traceback.format_exc()}")
+
 					self.application_repo.add_or_update_risk_score(app.unique_id(), risk_score)
 
 				# TODO: Don't analyze every 15 secs
