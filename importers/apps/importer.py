@@ -72,8 +72,8 @@ class AppInfoImporterThread:
 							try:
 								self.logger.info(f"{type(i).__name__} checking {a.id}")
 								i.import_info_for_app(copy.deepcopy(a), self.application_repo)
-							except Exception:
-								self.logger.error(f"Importer {type(i).__name__} failed: {traceback.format_exc()}")
+							except Exception as e:
+								self.logger.error(f"Importer {type(i).__name__} failed: {e}")
 
 				# TODO: Don't scan every 15 secs
 				next_scan_timer = Timer(15, lambda:

@@ -1,6 +1,7 @@
 import requests
 
 from analysis.analyzer import AppAnalyzer
+from model.app import OperatingSystem
 
 class TrackerAnalyzer(AppAnalyzer):
 	def __init__(self, token):
@@ -11,23 +12,20 @@ class TrackerAnalyzer(AppAnalyzer):
 		return 'Exodus Privacy Trackers'
 
 	def analyze_app(self, app):
+		if app.os != OperatingSystem.ANDROID:
+			raise ValueError("Only Android apps can be checked for trackers")
 
 		# According Binns et al. the median number of trackers embedded in 1 000 000 investigated apps was 10. Q1 and Q3 were 5 and 18 respectively.
 		# This is somewhat arbitrary, but for the time being we assume it is very undesirable to have apps in the upper quarter of total number of trackers.
 		# We use a normalization with 0 as minimum and 18 as maximum: x = (value - min) / (max - min)
-		try:
-			tracker_total = len(app.trackers)
+		tracker_total = len(app.trackers)
 
-			score = tracker_total / 18
+		score = tracker_total / 18
 
-			if(score > 1):
-				score = 1
+		if(score > 1):
+			score = 1
 
-			return score
-
-		except Exception as e:
-			print(e)
-			return -1
+		return score
 
 
 	# This method return a detailed list of all the trackers present in the application.

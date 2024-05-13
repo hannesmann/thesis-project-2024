@@ -28,8 +28,7 @@ class GPTAnalyzer(AppAnalyzer):
 	@limits(calls=1, period=5)
 	def analyze_app(self, app):
 		if not app.privacy_policy_url:
-			# TODO: Log/throw
-			return 0.0
+			raise ValueError("app has no privacy_policy_url")
 
 		EMBEDDING = "openai"
 		VECTOR_STORE = "faiss"
