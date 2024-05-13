@@ -79,10 +79,10 @@ class ApplicationRepository:
 		self.risk_scores[app_unique_id] = float(risk_score)
 
 	def load_tables(self):
-		apps_in_db = self.db.session.execute(self.at.select()).all()
-		self.logger.info(f"Loaded {len(apps_in_db)} app(s) from database")
+		apps_entry = self.db.session.execute(self.at.select()).all()
+		self.logger.info(f"Loaded {len(apps_entry)} app(s) from database")
 
-		for a in apps_in_db:
+		for a in apps_entry:
 			mappings = a._mapping
 
 			permissions = set()
@@ -108,9 +108,9 @@ class ApplicationRepository:
 				mappings["other_os_id"])
 			self.add_or_update_app(app)
 
-			risk_score_in_db = self.db.session.execute(self.rst.select().where(self.rst.columns.app_unique_id == app.unique_id())).first()
-			if risk_score_in_db:
-				self.add_or_update_risk_score(app.unique_id(), risk_score_in_db)
+			risk_score_entry = self.db.session.execute(self.rst.select().where(self.rst.columns.app_unique_id == app.unique_id())).first()
+			if risk_score_entry:
+				self.add_or_update_risk_score(app.unique_id(), risk_score_entry._mapping["risk_score"])
 
 	def save_tables(self):
 		exec = self.db.session.execute

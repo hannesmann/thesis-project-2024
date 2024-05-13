@@ -28,7 +28,7 @@ class GPTAnalyzer(AppAnalyzer):
 	def analyze_app(self, app):
 		if not app.privacy_policy_url:
 			# TODO: Log/throw
-			return 0
+			return 0.0
 
 		EMBEDDING = "openai"
 		VECTOR_STORE = "faiss"

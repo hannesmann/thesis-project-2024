@@ -61,7 +61,7 @@ class AppAnalyzerThread:
 
 			if event.type == ThreadEventType.ANALYZE_APPS:
 				for app in self.application_repo.apps.values():
-					risk_score = 0
+					risk_score = 0.0
 
 					for analyzer in self.analyzers:
 						try:
