@@ -4,7 +4,8 @@
 from loguru import logger
 from model.app import Application, OperatingSystem
 from sqlalchemy import *
-from time import time
+
+import configs
 
 metadata = MetaData()
 
@@ -41,13 +42,30 @@ trackers = Table(
 
 	UniqueConstraint("app_id", "tracker")
 )
+
+# Define tables for storing details about risk scores
 risk_scores = Table(
 	"risk_scores",
 	metadata,
 
 	Column("app_unique_id", String(255), primary_key=True),
-	Column("risk_score", Double),
+	Column("overall_value", Double),
+	Column("method", String(32))
 )
+detailed_risk_scores = Table(
+	"detailed_risk_scores",
+	metadata,
+
+	Column("app_unique_id", String(255), primary_key=True),
+	Column("analyzer", String(255), primary_key=True),
+	Column("value", Double),
+)
+
+class ApplicationRiskScore:
+	def __init__(self, value, sources, method):
+		self.overall_score = value
+		self.sources = sources
+		self.method = method
 
 class ApplicationRepository:
 	"""Retreives information about applications from various sources and caches it in a database"""
@@ -58,7 +76,6 @@ class ApplicationRepository:
 		"""
 		self.conn = conn
 		self.apps = {}
-		# TODO: Add date and individual risk scores
 		self.risk_scores = {}
 
 	def add_or_update_app(self, app):
@@ -75,8 +92,12 @@ class ApplicationRepository:
 		else:
 			self.apps[app.unique_id()] = app
 
-	def add_or_update_risk_score(self, app_unique_id, risk_score):
-		self.risk_scores[app_unique_id] = float(risk_score)
+	def add_or_update_risk_score(self, app_unique_id, overall_score, sources):
+		self.risk_scores[app_unique_id] = ApplicationRiskScore(
+			overall_score,
+			sources,
+			configs.main.analysis.risk_score_method_app
+		)
 
 	def __enter__(self):
 		# Create default tables
@@ -84,7 +105,7 @@ class ApplicationRepository:
 
 		# Get a list of existing applications
 		arows = self.conn.execute(apps.select()).all()
-		logger.success(f"Loaded {len(arows)} app(s) from database")
+		logger.success(f"Loaded {len(arows)} apps from database")
 
 		for arow in arows:
 			pset = set()
@@ -115,7 +136,20 @@ class ApplicationRepository:
 			# Check if risk score has been saved for this application
 			rrow = self.conn.execute(risk_scores.select().where(risk_scores.columns.app_unique_id == app.unique_id())).first()
 			if rrow:
-				self.add_or_update_risk_score(app.unique_id(), rrow.risk_score)
+				sources = {}
+
+				# Fetch a list of scores from analyzers
+				drows = self.conn.execute(detailed_risk_scores.select().where(detailed_risk_scores.columns.app_unique_id == app.unique_id())).all()
+				for drow in drows:
+					sources[drow.analyzer] = drow.value
+
+				# Retreive the overall and detailed scores
+				self.risk_scores[app.unique_id()] = ApplicationRiskScore(
+					rrow.overall_value,
+					sources,
+					rrow.method
+				)
+
 
 	def __exit__(self, *args):
 		# Applications are always deleted and recreated with INSERT
@@ -142,10 +176,27 @@ class ApplicationRepository:
 
 			# Save risk score if applicable
 			if app.unique_id() in self.risk_scores:
-				risk_score = self.risk_scores[app.unique_id()]
+				# Risk scores are always deleted and recreated with INSERT
 				self.conn.execute(risk_scores.delete().where(risk_scores.columns.app_unique_id == app.unique_id()))
-				self.conn.execute(risk_scores.insert().values(app_unique_id = app.unique_id(), risk_score = risk_score))
+				self.conn.execute(detailed_risk_scores.delete().where(detailed_risk_scores.columns.app_unique_id == app.unique_id()))
+
+				risk_score = self.risk_scores[app.unique_id()]
+
+				# Save the overall score and method
+				self.conn.execute(risk_scores.insert().values(
+					app_unique_id = app.unique_id(),
+					overall_value = risk_score.overall_score,
+					method = risk_score.method
+				))
+
+				# Save all sources
+				for source in risk_score.sources:
+					self.conn.execute(detailed_risk_scores.insert().values(
+						app_unique_id = app.unique_id(),
+						analyzer = source,
+						value = risk_score.sources[source]
+					))
 
 		self.conn.commit()
-		logger.success(f"Saved {len(self.apps)} app(s) to database")
+		logger.success(f"Saved {len(self.apps)} apps to database")
 

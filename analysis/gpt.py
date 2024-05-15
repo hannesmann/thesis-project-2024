@@ -17,7 +17,7 @@ import configs
 
 class GPTAnalyzer(AppAnalyzer):
 	def name(self):
-		return f"OpenAI ({configs.main.analysis.gpt.model})"
+		return f"OpenAI {configs.main.analysis.gpt.model}"
 
 	@sleep_and_retry
 	@limits(calls=1, period=5)

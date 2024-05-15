@@ -18,10 +18,10 @@ def find_printable_privacy_policy_url(url):
 
 	# Check if there is a printable version (found on facebook.com)
 	res_current = requests.get(url, headers=language_header)
-	res_printable = requests.get(res_current.url.split("?")[0].strip("/ ") + "/printable", headers=language_header).strip("/ ")
+	res_printable = requests.get(res_current.url.split("?")[0].strip("/ ") + "/printable", headers=language_header)
 
 	if res_current.text != res_printable.text and res_printable.status_code == 200:
-		return res_printable.url
+		return res_printable.url.strip("/ ")
 
 	# TODO: Check for ?PrintView=true (microsoft.com)
 	# Page hash is the same, seems to be running in JavaScript

@@ -49,7 +49,7 @@ class DevicesRepository:
 
 		# Get a list of existing devices
 		drows = self.conn.execute(devices.select()).all()
-		logger.success(f"Loaded {len(drows)} device(s) from database")
+		logger.success(f"Loaded {len(drows)} devices from database")
 
 		for drow in drows:
 			device = Device(
@@ -86,4 +86,4 @@ class DevicesRepository:
 				self.conn.execute(discovered_apps.insert().values(device_id = device.id, app_id = app.id))
 
 		self.conn.commit()
-		logger.success(f"Saved {len(self.devices)} device(s) to database")
+		logger.success(f"Saved {len(self.devices)} devices to database")

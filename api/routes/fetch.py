@@ -38,9 +38,18 @@ def define_fetch_routes(app, repositories):
 			unique_id = f"{id}_IOS"
 
 		if unique_id in repositories.apps.apps:
+			risk_score = repositories.apps.risk_scores.get(unique_id)
+			risk_score_response = None
+
+			if risk_score:
+				risk_score_response = {
+					"overall": risk_score.overall_score,
+					"sources": risk_score.sources
+				}
+
 			return make_success({
 				"data": repositories.apps.apps[unique_id].__dict__,
-				"risk_score": repositories.apps.risk_scores.get(unique_id)
+				"risk_score": risk_score_response
 			})
 
 		response.status = 404

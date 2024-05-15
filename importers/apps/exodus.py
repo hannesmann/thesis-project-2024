@@ -49,9 +49,9 @@ class ExodusImporter(AppInfoImporter):
 		# Set the app attributes
 		app.name = appName
 		app.permissions = list(set(permissions))
-		logger.info(f"Got {len(app.permissions)} permission(s) for {app.id}")
+		logger.info(f"Got {len(app.permissions)} permissions for {app.id}")
 		app.trackers = list(set(trackers))
-		logger.info(f"Got {len(app.trackers)} tracker(s) for {app.id}")
+		logger.info(f"Got {len(app.trackers)} trackers for {app.id}")
 
 		# Add to repo and return
 		repo.add_or_update_app(app)

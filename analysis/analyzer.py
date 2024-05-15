@@ -65,21 +65,22 @@ class AppAnalyzerThread:
 
 			if event.type == ThreadEventType.ANALYZE_APPS:
 				for app in self.application_repo.apps.values():
-					risk_score = 0.0
-					has_analyzed = False
+					overall_risk_score = 0.0
+					sources = {}
 
 					for analyzer in self.analyzers:
 						try:
 							logger.info(f"{type(analyzer).__name__} ({analyzer.name()}) checking {app.id}")
-							risk_score = self.combine_risk_scores(risk_score, analyzer.analyze_app(app))
-							has_analyzed = True
+							analyzer_score = analyzer.analyze_app(app)
+							sources[analyzer.name()] = analyzer_score
+							overall_risk_score = self.combine_risk_scores(overall_risk_score, analyzer_score)
 						except Exception as e:
 							logger.warning(f"Analyzer {type(analyzer).__name__} failed: {e}")
 
-					# Avoid updating the risk score if analysis couldn't be completed
-					if has_analyzed:
-						logger.info(f"Updated risk score for {app.id}: {risk_score}")
-						self.application_repo.add_or_update_risk_score(app.unique_id(), risk_score)
+					# Avoid updating the risk score if analysis couldn't be completed by any class
+					if len(sources) > 0:
+						logger.info(f"Updated risk score for {app.id}: {overall_risk_score} (from {len(sources)} sources)")
+						self.application_repo.add_or_update_risk_score(app.unique_id(), overall_risk_score, sources)
 
 				next_analysis_timer = Timer(configs.main.analysis.timer, lambda:
 					self.events.put(ThreadEvent(ThreadEventType.ANALYZE_APPS)))
