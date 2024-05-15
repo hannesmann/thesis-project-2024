@@ -3,6 +3,8 @@
 
 import csv
 from io import StringIO
+
+from munch import Munch
 from importers.devices.importer import DeviceImporter
 from model.app import Application
 
@@ -16,10 +18,7 @@ class CSVImporter(DeviceImporter):
 		for row in csv_reader:
 			# Fix up the app ID
 			app_id = row["app"].strip(". ")
-			self.apps[app_id] = {
-				"info": Application(app_id, os),
-				"count": int(row["count"])
-			}
+			self.apps[app_id] = Munch(info=Application(app_id, os), count=int(row["count"]))
 
 	def	fetch_discovered_apps(self):
 		return self.apps.values()

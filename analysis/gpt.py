@@ -1,28 +1,23 @@
+# Copyright (c) 2024 Hannes Mann, Alexander Wigren
+# See LICENSE for details
+
 from io import BytesIO
 import pdfkit
 from ratelimit import sleep_and_retry, limits
 
 from analysis.analyzer import AppAnalyzer
 
-from analysis.core.parsing import PdfFile
-from analysis.core.chunking import chunk_file
-from analysis.core.embedding import embed_files
-from analysis.core.qa import query_folder
-from analysis.core.utils import get_llm
+from analysis.knowledge_gpt.core.parsing import PdfFile
+from analysis.knowledge_gpt.core.chunking import chunk_file
+from analysis.knowledge_gpt.core.embedding import embed_files
+from analysis.knowledge_gpt.core.qa import query_folder
+from analysis.knowledge_gpt.core.utils import get_llm
+
+import configs
 
 class GPTAnalyzer(AppAnalyzer):
-	def __init__(self, api_key, model):
-		super().__init__()
-
-		self.api_key = api_key
-		self.model = model
-
 	def name(self):
-		if "gpt-4" in self.model:
-			return "GPT-4"
-		elif "gpt-3.5-turbo" in self.model:
-			return "GPT-3.5 Turbo"
-		return self.model
+		return f"OpenAI ({configs.main.analysis.gpt.model})"
 
 	@sleep_and_retry
 	@limits(calls=1, period=5)
@@ -41,12 +36,15 @@ class GPTAnalyzer(AppAnalyzer):
 		# Chunk file before analysis.
 		chunked_file = chunk_file(file, chunk_size=300, chunk_overlap=0)
 
+		model = configs.main.analysis.gpt.model
+		api_key = configs.secrets.api.openai
+
 		# Index and create embeddings.
 		folder_index = embed_files(
 			files=[chunked_file],
-			embedding=EMBEDDING if self.model != "debug" else "debug",
-			vector_store=VECTOR_STORE if self.model != "debug" else "debug",
-			openai_api_key=self.api_key,
+			embedding=EMBEDDING if model != "debug" else "debug",
+			vector_store=VECTOR_STORE if model != "debug" else "debug",
+			openai_api_key=api_key,
 		)
 
 		# This is the O'Loughlin type query.
@@ -60,7 +58,7 @@ class GPTAnalyzer(AppAnalyzer):
 			Does the document state that users can use the service/application WITHOUT entering any personally identifiable information OR that information is stored locally? [X]"""
 
 		# Send query and get response.
-		llm = get_llm(model=self.model, openai_api_key=self.api_key, temperature=0)
+		llm = get_llm(model=model, openai_api_key=api_key, temperature=0)
 		result = query_folder(
 			folder_index=folder_index,
 			query=query,

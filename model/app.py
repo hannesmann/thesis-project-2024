@@ -4,11 +4,11 @@
 from enum import Enum
 from model.system_app_ids import android_system_apps, ios_system_apps
 
-class OperatingSystem(Enum):
+class OperatingSystem(str, Enum):
 	"""Enumeration of supported mobile operating systems"""
 
-	ANDROID = 1
-	IOS = 2
+	ANDROID = "android"
+	IOS = "ios"
 
 class Application:
 	"""Represents a mobile application"""
@@ -36,11 +36,14 @@ class Application:
 		if permissions:
 			for p in permissions:
 				self.permissions.add(p)
+		# Convert to list to make json.dump happy
+		self.permissions = list(self.permissions)
 
 		self.trackers = set()
 		if trackers:
 			for t in trackers:
 				self.trackers.add(t)
+		self.trackers = list(self.trackers)
 
 		self.store_page_url = store_page_url
 		self.privacy_policy_url = privacy_policy_url

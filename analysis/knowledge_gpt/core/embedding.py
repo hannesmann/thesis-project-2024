@@ -1,11 +1,11 @@
 from langchain.vectorstores import VectorStore
-from analysis.core.parsing import File
+from analysis.knowledge_gpt.core.parsing import File
 from langchain.vectorstores.faiss import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.embeddings.base import Embeddings
 from typing import List, Type
 from langchain.docstore.document import Document
-from analysis.core.debug import FakeVectorStore, FakeEmbeddings
+from analysis.knowledge_gpt.core.debug import FakeVectorStore, FakeEmbeddings
 
 
 class FolderIndex:

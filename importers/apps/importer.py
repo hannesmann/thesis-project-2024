@@ -1,16 +1,14 @@
 # Copyright (c) 2024 Hannes Mann, Alexander Wigren
 # See LICENSE for details
 
+from enum import Enum
+from loguru import logger
+from queue import Queue
+from threading import Thread, Timer
+
 import abc
 import copy
-import logging
-
-from datetime import datetime
-from enum import Enum
-import traceback
-from repository.apps import ApplicationRepository
-from threading import Thread, Timer
-from queue import Queue
+import configs
 
 class AppInfoImporter(abc.ABC):
 	"""Represents a source of additional application data (permissions, trackers, etc)"""
@@ -40,10 +38,13 @@ class ThreadEvent:
 class AppInfoImporterThread:
 	"""Periodically imports data from AppInfoImporter and saves it in ApplicationRepository"""
 
-	def __init__(self, application_repo):
+	def __init__(self, application_repo, default_importers=None):
 		self.application_repo = application_repo
+
 		self.importers = []
-		self.logger = logging.getLogger("app")
+		if configs.main.importers.autorun and default_importers:
+			logger.info(f"Adding app info importers: {" ".join([type(i).__name__ for i in default_importers])}")
+			self.importers = default_importers
 
 		self.events = Queue()
 		self.events.put(ThreadEvent(ThreadEventType.SCAN_APPS))
@@ -51,32 +52,26 @@ class AppInfoImporterThread:
 		self.thread = Thread(target=self.import_thread, daemon=True)
 		self.thread.start()
 
-	def add_importer(self, importer):
-		self.logger.info(f"New app info importer: {type(importer).__name__}")
-		self.importers.append(importer)
-
 	# Thread to periodically import data from app stores and related sources
 	def import_thread(self):
-		self.logger.info(f"App info importer thread started at {datetime.now():%Y-%m-%d %H:%M:%S}")
+		logger.success(f"App info importer thread started and waiting for events")
 
 		while True:
 			event = self.events.get()
 
 			if event.type == ThreadEventType.SCAN_APPS:
-				# TODO: Access from multiple threads?
 				for a in self.application_repo.apps.values():
 					# Don't check system apps or apps that we already have all info available for
 					should_check_app = not a.is_complete_app() and not a.is_system_app()
 					if should_check_app:
 						for i in filter(lambda i: i.os() == a.os, self.importers):
 							try:
-								self.logger.info(f"{type(i).__name__} checking {a.id}")
+								logger.info(f"{type(i).__name__} checking {a.id}")
 								i.import_info_for_app(copy.deepcopy(a), self.application_repo)
 							except Exception as e:
-								self.logger.error(f"Importer {type(i).__name__} failed: {e}")
+								logger.warning(f"Importer {type(i).__name__} failed: {e}")
 
-				# TODO: Don't scan every 15 secs
-				next_scan_timer = Timer(15, lambda:
+				next_scan_timer = Timer(configs.main.importers.timer, lambda:
 					self.events.put(ThreadEvent(ThreadEventType.SCAN_APPS)))
 				next_scan_timer.start()
 

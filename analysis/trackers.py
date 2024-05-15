@@ -1,13 +1,13 @@
+# Copyright (c) 2024 Hannes Mann, Alexander Wigren
+# See LICENSE for details
+
 import requests
+import configs
 
 from analysis.analyzer import AppAnalyzer
 from model.app import OperatingSystem
 
 class TrackerAnalyzer(AppAnalyzer):
-	def __init__(self, token):
-		super().__init__()
-		self.token = token
-
 	def name(self):
 		return 'Exodus Privacy Trackers'
 
@@ -31,7 +31,7 @@ class TrackerAnalyzer(AppAnalyzer):
 	# This method return a detailed list of all the trackers present in the application.
 	def tracker_report(self, app):
 
-		trackerBlob = requests.get(f'https://reports.exodus-privacy.eu.org/api/trackers', headers = {'Authorization': f'Token {self.token}'})
+		trackerBlob = requests.get(f'https://reports.exodus-privacy.eu.org/api/trackers', headers = {'Authorization': f'Token {configs.secrets.api.exodus}'})
 
 		trackerData = trackerBlob.json()
 

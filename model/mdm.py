@@ -2,15 +2,16 @@
 # See LICENSE for details
 
 from enum import Enum
+from time import time
 
-class DeviceOwnership(Enum):
+class DeviceOwnership(str, Enum):
 	"""
 	Ownership of device in MDM environment
 	This setting determines the app list available to the server
 	"""
 
-	CORPORATE_OWNED = 1
-	USER_OWNED = 2
+	CORPORATE_OWNED = "corporate_owned"
+	USER_OWNED = "user_owned"
 
 class Device:
 	"""Represents a managed user device"""
@@ -27,7 +28,7 @@ class Device:
 		self.name = name
 		self.os = os
 		self.ownership = ownership
-		self.discovered_apps = set()
+		self.discovered_apps = list()
 
 	def update_discovered_apps(self, apps, replace=True):
 		"""
@@ -37,14 +38,14 @@ class Device:
 		"""
 
 		if replace:
-			self.discovered_apps = set()
+			self.discovered_apps = list()
 
 		for app in apps:
 			# List of model.Application
-			if hasattr(app, "package_id"):
+			if hasattr(app, "package_id") and app.package_id not in self.discovered_apps:
 				self.discovered_apps.add(app.package_id)
 			# List of application package IDs
-			elif isinstance(app, str):
+			elif isinstance(app, str) and app not in self.discovered_apps:
 				self.discovered_apps.add(app)
 			else:
 				raise TypeError("Discovered apps should be a list of model.Application or package IDs")

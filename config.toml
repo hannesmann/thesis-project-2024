@@ -1,0 +1,88 @@
+# This is the config file for the data collection and risk assessment server
+# API keys are defined in secrets.toml
+
+[server]
+host = "localhost"
+port = 8000
+
+debug = false
+log_requests = true
+backend = "waitress"
+
+# https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls
+database_url = "sqlite:///repository/development.db"
+
+[logging]
+level = "warning"
+# If set to a non-empty string, write log to a file
+# Example: "debug_{time:YYYY-MM-DD_HH:mm}.log"
+file = ""
+
+[importers]
+# Configures if importers should be automatically added at startup
+# This does not prevent users from adding importers manually (CSV upload, etc.)
+autorun = true
+# Configures the periodic timer for app info scanning
+timer = 15
+
+[analysis]
+# Configures if app analyzers should be automatically added at startup
+autorun = true
+# Determines how the risk score is calculated for an application with multiple analyzers
+risk_score_method_app = "avg"
+# Determines how the risk score is calculated for a device with multiple applications
+risk_score_method_device = "avg"
+# Configures the periodic timer for app analysis
+# TODO: Add an option to run analysis only when an app has been updated from MDM
+timer = 15
+
+[analysis.gpt]
+# Select the model that should be used for privacy policy analysis
+# Recommended: gpt-4 or gpt-3.5-turbo
+model = "gpt-4"
+
+[analysis.permissions]
+# Google maintains a list of 40 permissions marked as dangerous at https://developer.android.com/reference/android/Manifest.permission
+# You can customize the permissions that are considered during analysis here
+dangerous_permissions = [
+	"android.permission.ACCEPT_HANDOVER",
+	"android.permission.ACCESS_BACKGROUND_LOCATION",
+	"android.permission.ACCESS_COARSE_LOCATION",
+	"android.permission.ACCESS_FINE_LOCATION",
+	"android.permission.ACCESS_MEDIA_LOCATION",
+	"android.permission.ACTIVITY_RECOGNITION",
+	"android.permission.ANSWER_PHONE_CALLS",
+	"android.permission.BLUETOOTH_ADVERTISE",
+	"android.permission.BLUETOOTH_CONNECT",
+	"android.permission.BLUETOOTH_SCAN",
+	"android.permission.BODY_SENSORS",
+	"android.permission.BODY_SENSORS_BACKGROUND",
+	"android.permission.CALL_PHONE",
+	"android.permission.CAMERA",
+	"android.permission.GET_ACCOUNTS",
+	"android.permission.NEARBY_WIFI_DEVICES",
+	"android.permission.POST_NOTIFICATIONS",
+	"android.permission.PROCESS_OUTGOING_CALLS",
+	"android.permission.READ_CALENDAR",
+	"android.permission.READ_CALL_LOG",
+	"android.permission.READ_CONTACTS",
+	"android.permission.READ_EXTERNAL_STORAGE",
+	"android.permission.READ_MEDIA_AUDIO",
+	"android.permission.READ_MEDIA_IMAGES",
+	"android.permission.READ_MEDIA_VIDEO",
+	"android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
+	"android.permission.READ_PHONE_NUMBERS",
+	"android.permission.READ_PHONE_STATE",
+	"android.permission.READ_SMS",
+	"android.permission.RECEIVE_MMS",
+	"android.permission.RECEIVE_WAP_PUSH",
+	"android.permission.RECORD_AUDIO",
+	"android.permission.SEND_SMS",
+	"android.permission.USE_SIP",
+	"android.permission.UWB_RANGING",
+	"android.permission.WRITE_CALENDAR",
+	"android.permission.WRITE_CALL_LOG",
+	"android.permission.WRITE_CONTACTS",
+	"android.permission.WRITE_EXTERNAL_STORAGE",
+	"com.android.voicemail.permission.ADD_VOICEMAIL"
+]

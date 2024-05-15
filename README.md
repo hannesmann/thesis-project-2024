@@ -15,7 +15,7 @@ The project implements a proof-of-concept application for performing data collec
 
 * Python 3.10 or newer
 * Poetry
-* A WSGI server such as Gunicorn (included in pyproject)
+* A WSGI server such as Waitress (included in pyproject.toml)
 * wkhtmltopdf (If you have trouble with the PDF being unreadable by GPT, use a binary from [wkhtmltopdf.org](https://wkhtmltopdf.org/downloads.html))
 
 ### Running the server
@@ -26,10 +26,8 @@ poetry install
 # Activate the project's virtualenv
 poetry shell
 
-# Start the server in debug mode (localhost:5000)
-python main.py
-# Start the server in production mode (localhost:8000)
-gunicorn --workers=1 --worker-class=thread --log-file=- main:api
+# Start the server at localhost:8000
+python main.py --config-file config.toml --secrets-file secrets.toml
 
 # Get a list of API endpoints
 curl http://localhost:8000
@@ -41,6 +39,6 @@ Uploading a list of apps manually can be done with cURL:
 
 ```bash
 # Replace "apps.csv" with the name of your CSV file
-curl --data-binary "@apps.csv" "http://localhost:8000/api/upload_android_csv"
-curl --data-binary "@apps.csv" "http://localhost:8000/api/upload_ios_csv"
+curl --data-binary "@apps.csv" "http://localhost:8000/api/upload_android_csv" | jq
+curl --data-binary "@apps.csv" "http://localhost:8000/api/upload_ios_csv" | jq
 ```
