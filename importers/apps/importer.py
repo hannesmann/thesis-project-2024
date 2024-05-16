@@ -60,16 +60,16 @@ class AppInfoImporterThread:
 			event = self.events.get()
 
 			if event.type == ThreadEventType.SCAN_APPS:
-				for a in self.application_repo.apps.values():
+				for app in self.application_repo.apps.values():
 					# Don't check system apps or apps that we already have all info available for
-					should_check_app = not a.is_complete_app() and not a.is_system_app()
+					should_check_app = not app.is_complete_app() and not app.is_system_app()
 					if should_check_app:
-						for i in filter(lambda i: i.os() == a.os, self.importers):
+						for importer in filter(lambda i: i.os() == app.os, self.importers):
 							try:
-								logger.info(f"{type(i).__name__} checking {a.id}")
-								i.import_info_for_app(copy.deepcopy(a), self.application_repo)
+								logger.info(f"{type(importer).__name__} checking {app.id}")
+								importer.import_info_for_app(copy.deepcopy(app), self.application_repo)
 							except Exception as e:
-								logger.warning(f"Importer {type(i).__name__} failed: {e}")
+								logger.warning(f"Importer {type(importer).__name__} failed: {e}")
 
 				next_scan_timer = Timer(configs.main.importers.timer, lambda:
 					self.events.put(ThreadEvent(ThreadEventType.SCAN_APPS)))

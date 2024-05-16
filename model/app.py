@@ -2,7 +2,7 @@
 # See LICENSE for details
 
 from enum import Enum
-from model.system_app_ids import android_system_apps, ios_system_apps
+import configs
 
 class OperatingSystem(str, Enum):
 	"""Enumeration of supported mobile operating systems"""
@@ -34,15 +34,15 @@ class Application:
 
 		self.permissions = set()
 		if permissions:
-			for p in permissions:
-				self.permissions.add(p)
+			for permission in permissions:
+				self.permissions.add(permission)
 		# Convert to list to make json.dump happy
 		self.permissions = list(self.permissions)
 
 		self.trackers = set()
 		if trackers:
-			for t in trackers:
-				self.trackers.add(t)
+			for tracker in trackers:
+				self.trackers.add(tracker)
 		self.trackers = list(self.trackers)
 
 		self.store_page_url = store_page_url
@@ -52,9 +52,9 @@ class Application:
 
 	def is_system_app(self):
 		if self.os == OperatingSystem.ANDROID:
-			return self.id.lower() in android_system_apps
+			return self.id.lower() in configs.main.analysis.system_apps.android
 		elif self.os == OperatingSystem.IOS:
-			return self.id.lower() in ios_system_apps
+			return self.id.lower() in configs.main.analysis.system_apps.ios
 		return False
 
 	def is_complete_app(self):
