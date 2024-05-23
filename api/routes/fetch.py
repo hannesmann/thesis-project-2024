@@ -58,7 +58,10 @@ def define_fetch_routes(app, repositories):
 	@app.route("/api/device/<id>", method="GET")
 	def get_device_from_id(id):
 		if id in repositories.devices.devices:
-			return make_success({"data": repositories.devices.devices[id].__dict__})
+			return make_success({
+				"data": repositories.devices.devices[id].__dict__,
+				"risk_score": repositories.devices.risk_scores.get(id)
+			})
 
 		response.status = 404
 		return make_error(ERROR_NOT_FOUND)

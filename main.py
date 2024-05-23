@@ -57,7 +57,7 @@ if __name__ == "__main__":
 			app_info_importer_thread = AppInfoImporterThread(app_repository, default_app_info_importers)
 			device_importer_thread = DeviceImporterThread(app_repository, devices_repository)
 			# Initialize analyzers
-			app_analyzer_thread = AppAnalyzerThread(app_repository, default_app_analyzers)
+			app_analyzer_thread = AppAnalyzerThread(app_repository, devices_repository, default_app_analyzers)
 
 			# Initialize Bottle application
 			app = create_rest_api(

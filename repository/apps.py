@@ -45,7 +45,7 @@ trackers = Table(
 
 # Define tables for storing details about risk scores
 risk_scores = Table(
-	"risk_scores",
+	"app_risk_scores",
 	metadata,
 
 	Column("app_unique_id", String(255), primary_key=True),
@@ -53,7 +53,7 @@ risk_scores = Table(
 	Column("method", String(32))
 )
 detailed_risk_scores = Table(
-	"detailed_risk_scores",
+	"detailed_app_risk_scores",
 	metadata,
 
 	Column("app_unique_id", String(255), primary_key=True),
@@ -66,6 +66,13 @@ class ApplicationRiskScore:
 		self.overall_score = value
 		self.sources = sources
 		self.method = method
+
+def combine_risk_scores(current, next):
+	if configs.main.analysis.risk_score_method_app == "avg":
+		return (current + next) / 2.0
+	elif configs.main.analysis.risk_score_method_app == "max":
+		return max(current, next)
+	raise ValueError("Invalid configs.main.analysis.risk_score_method_app")
 
 class ApplicationRepository:
 	"""Retreives information about applications from various sources and caches it in a database"""
@@ -92,12 +99,18 @@ class ApplicationRepository:
 		else:
 			self.apps[app.unique_id()] = app
 
-	def add_or_update_risk_score(self, app_unique_id, overall_score, sources):
-		self.risk_scores[app_unique_id] = ApplicationRiskScore(
+	def update_risk_score_from_sources(self, app, sources):
+		overall_score = 0.0
+		for source in sources:
+			overall_score = combine_risk_scores(overall_score, sources[source])
+
+		self.risk_scores[app.unique_id()] = ApplicationRiskScore(
 			overall_score,
 			sources,
 			configs.main.analysis.risk_score_method_app
 		)
+
+		logger.info(f"Updated risk score for app {app.id}: {overall_score} (from {len(sources)} sources)")
 
 	def __enter__(self):
 		# Create default tables
@@ -174,12 +187,12 @@ class ApplicationRepository:
 				for tracker in app.trackers:
 					self.conn.execute(trackers.insert().values(app_id = app.id, tracker = tracker))
 
+			# Risk scores are always deleted and recreated with INSERT
+			self.conn.execute(risk_scores.delete().where(risk_scores.columns.app_unique_id == app.unique_id()))
+			self.conn.execute(detailed_risk_scores.delete().where(detailed_risk_scores.columns.app_unique_id == app.unique_id()))
+
 			# Save risk score if applicable
 			if app.unique_id() in self.risk_scores:
-				# Risk scores are always deleted and recreated with INSERT
-				self.conn.execute(risk_scores.delete().where(risk_scores.columns.app_unique_id == app.unique_id()))
-				self.conn.execute(detailed_risk_scores.delete().where(detailed_risk_scores.columns.app_unique_id == app.unique_id()))
-
 				risk_score = self.risk_scores[app.unique_id()]
 
 				# Save the overall score and method

@@ -35,8 +35,9 @@ class ThreadEvent:
 class AppAnalyzerThread:
 	"""Periodically analyze apps and saves risk scores in ApplicationRepository"""
 
-	def __init__(self, application_repo, default_analyzers=None):
+	def __init__(self, application_repo, devices_repo, default_analyzers=None):
 		self.application_repo = application_repo
+		self.devices_repo = devices_repo
 
 		self.analyzers = []
 		if configs.main.analysis.autorun and default_analyzers:
@@ -49,13 +50,6 @@ class AppAnalyzerThread:
 		self.thread = Thread(target=self.analysis_thread, daemon=True)
 		self.thread.start()
 
-	def combine_risk_scores(self, risk_score, analyzer_score):
-		if configs.main.analysis.risk_score_method_app == "avg":
-			return (risk_score + analyzer_score) / 2.0
-		elif configs.main.analysis.risk_score_method_app == "max":
-			return max(risk_score, analyzer_score)
-		raise ValueError("Invalid configs.main.analysis.risk_score_method_app")
-
 	# Thread to periodically analyze apps
 	def analysis_thread(self):
 		logger.success(f"App analysis thread started and waiting for events")
@@ -65,7 +59,6 @@ class AppAnalyzerThread:
 
 			if event.type == ThreadEventType.ANALYZE_APPS:
 				for app in self.application_repo.apps.values():
-					overall_risk_score = 0.0
 					sources = {}
 
 					for analyzer in self.analyzers:
@@ -73,14 +66,14 @@ class AppAnalyzerThread:
 							logger.info(f"{type(analyzer).__name__} ({analyzer.name()}) checking {app.id}")
 							analyzer_score = analyzer.analyze_app(app)
 							sources[analyzer.name()] = analyzer_score
-							overall_risk_score = self.combine_risk_scores(overall_risk_score, analyzer_score)
 						except Exception as e:
 							logger.warning(f"Analyzer {type(analyzer).__name__} failed: {e}")
 
 					# Avoid updating the risk score if analysis couldn't be completed by any class
 					if len(sources) > 0:
-						logger.info(f"Updated risk score for {app.id}: {overall_risk_score} (from {len(sources)} sources)")
-						self.application_repo.add_or_update_risk_score(app.unique_id(), overall_risk_score, sources)
+						self.application_repo.update_risk_score_from_sources(app, sources)
+
+				self.devices_repo.update_risk_scores_from_repo(self.application_repo)
 
 				next_analysis_timer = Timer(configs.main.analysis.timer, lambda:
 					self.events.put(ThreadEvent(ThreadEventType.ANALYZE_APPS)))
