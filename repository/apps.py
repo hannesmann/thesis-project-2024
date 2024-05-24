@@ -68,6 +68,8 @@ class ApplicationRiskScore:
 		self.method = method
 
 def combine_risk_scores(current, next):
+	if not current:
+		return next
 	if configs.main.analysis.risk_score_method_app == "avg":
 		return (current + next) / 2.0
 	elif configs.main.analysis.risk_score_method_app == "max":
@@ -100,7 +102,7 @@ class ApplicationRepository:
 			self.apps[app.unique_id()] = app
 
 	def update_risk_score_from_sources(self, app, sources):
-		overall_score = 0.0
+		overall_score = None
 		for source in sources:
 			overall_score = combine_risk_scores(overall_score, sources[source])
 

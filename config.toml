@@ -32,6 +32,8 @@ autorun = true
 risk_score_method_app = "avg"
 # Determines how the risk score is calculated for a device with multiple applications
 risk_score_method_device = "avg"
+# Determines how the risk score is calculated for an entire organization
+risk_score_method_organization = "avg"
 # Configures the periodic timer for app analysis
 # TODO: Add an option to run analysis only when an app has been updated from MDM
 timer = 15

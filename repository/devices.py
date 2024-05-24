@@ -40,12 +40,23 @@ risk_scores = Table(
 	Column("combined_value", Double)
 )
 
-def combine_risk_scores(current, next):
+def combine_device_risk_scores(current, next):
+	if not current:
+		return next
 	if configs.main.analysis.risk_score_method_device == "avg":
 		return (current + next) / 2.0
 	elif configs.main.analysis.risk_score_method_device == "max":
 		return max(current, next)
 	raise ValueError("Invalid configs.main.analysis.risk_score_method_device")
+
+def combine_organization_risk_scores(current, next):
+	if not current:
+		return next
+	if configs.main.analysis.risk_score_method_órganization == "avg":
+		return (current + next) / 2.0
+	elif configs.main.analysis.risk_score_method_órganization == "max":
+		return max(current, next)
+	raise ValueError("Invalid configs.main.analysis.risk_score_method_órganization")
 
 class DevicesRepository:
 	"""Stores information about devices and caches it in a database"""
@@ -68,18 +79,25 @@ class DevicesRepository:
 
 		for device in self.devices:
 			if len(device.discovered_apps) > 0:
-				combined_score = 0.0
+				combined_score = None
 
 				# Build an intersection of all apps that are both in the repo and device
 				# We need to build a list with the format "org.app.x_ANDROID", "com.app.y_IOS", etc to find risk scores
 				device_app_ids = map(lambda a: f"{a}_{device.os.name}", device.discovered_apps)
 				analyzed_device_apps = set(apps.risk_scores.keys()).intersection(device_app_ids)
 				for app in analyzed_device_apps:
-					combined_score = combine_risk_scores(combined_score, apps[app])
+					combined_score = combine_device_risk_scores(combined_score, apps[app])
 
 				self.risk_scores[device.id] = combined_score
 				logger.info(f"Updated risk score for device {device.id}: {combined_score} (from {analyzed_device_apps} apps)")
 
+	def combine_scores_for_organization(self):
+		combined_score = None
+
+		for device in self.risk_scores:
+			combined_score = combine_organization_risk_scores(combined_score, self.risk_scores[device])
+
+		return combined_score
 
 	def __enter__(self):
 		# Create default tables

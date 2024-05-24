@@ -11,7 +11,8 @@ def define_fetch_routes(app, repositories):
 		return make_success({
 			"overview": {
 				"apps": len(repositories.apps.apps),
-				"devices": len(repositories.devices.devices)
+				"devices": len(repositories.devices.devices),
+				"risk_score": repositories.devices.combine_scores_for_organization()
 			}
 		})
 
