@@ -29,9 +29,9 @@ timer = 15
 # Configures if app analyzers should be automatically added at startup
 autorun = true
 # Determines how the risk score is calculated for an application with multiple analyzers
-risk_score_method_app = "avg"
+risk_score_method_app = "max"
 # Determines how the risk score is calculated for a device with multiple applications
-risk_score_method_device = "avg"
+risk_score_method_device = "max"
 # Determines how the risk score is calculated for an entire organization
 risk_score_method_organization = "avg"
 # Configures the periodic timer for app analysis
