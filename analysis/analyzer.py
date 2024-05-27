@@ -9,6 +9,7 @@ from threading import Thread, Timer
 
 import abc
 import configs
+import traceback
 
 class AppAnalyzer(abc.ABC):
 	"""Determines the risk score of an application using a certain metric (permissions, trackers, etc)"""
@@ -67,7 +68,10 @@ class AppAnalyzerThread:
 							analyzer_score = analyzer.analyze_app(app)
 							sources[analyzer.name()] = analyzer_score
 						except Exception as e:
-							logger.warning(f"Analyzer {type(analyzer).__name__} failed: {e}")
+							if configs.main.server.debug:
+								logger.warning(f"Analyzer {type(analyzer).__name__} failed for {app.id}: {traceback.format_exc()}")
+							else:
+								logger.warning(f"Analyzer {type(analyzer).__name__} failed for {app.id}: {e}")
 
 					# Avoid updating the risk score if analysis couldn't be completed by any class
 					if len(sources) > 0:

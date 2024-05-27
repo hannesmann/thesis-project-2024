@@ -1,8 +1,11 @@
 # Copyright (c) 2024 Hannes Mann, Alexander Wigren
 # See LICENSE for details
 
-from io import BytesIO
 import pdfkit
+import configs
+
+from io import BytesIO
+from loguru import logger
 from ratelimit import sleep_and_retry, limits
 
 from analysis.analyzer import AppAnalyzer
@@ -12,8 +15,6 @@ from analysis.knowledge_gpt.core.chunking import chunk_file
 from analysis.knowledge_gpt.core.embedding import embed_files
 from analysis.knowledge_gpt.core.qa import query_folder
 from analysis.knowledge_gpt.core.utils import get_llm
-
-import configs
 
 class GPTAnalyzer(AppAnalyzer):
 	def name(self):
@@ -29,7 +30,7 @@ class GPTAnalyzer(AppAnalyzer):
 		VECTOR_STORE = "faiss"
 
 		# Use wkhtmltopdf to fetch and convert privacy policy
-		pdf = BytesIO(pdfkit.from_url(app.privacy_policy_url))
+		pdf = BytesIO(pdfkit.from_url(app.privacy_policy_url, verbose=configs.main.server.debug))
 		pdf.name = app.privacy_policy_url
 		file = PdfFile.from_bytes(pdf)
 
@@ -72,13 +73,16 @@ class GPTAnalyzer(AppAnalyzer):
 
 		res = str.splitlines(result.answer)
 
+		if configs.main.server.debug:
+			logger.info(f"Response from GPT: {result.answer}")
+
 		# Check if personally identifiable information is collected.
 		if(res[0][len(res[0]) - 2] == 'Y'):
 			# Check remaining parameters.
 			if(res[1][len(res[1]) - 2] == 'N' or res[2][len(res[2]) - 2] == 'N' or res[3][len(res[3]) - 2] == 'N'):
 				#print("unacceptable!")
 				return 1
-			elif(res[4][len(res[1]) - 2] == 'N' or res[5][len(res[1]) - 2] == 'N' or res[6][len(res[1]) - 2] == 'N'):
+			elif(res[4][len(res[4]) - 2] == 'N' or res[5][len(res[5]) - 2] == 'N' or res[6][len(res[6]) - 2] == 'N'):
 				#print("questionable!")
 				return 0.5
 			elif(True):

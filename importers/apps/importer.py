@@ -9,6 +9,7 @@ from threading import Thread, Timer
 import abc
 import copy
 import configs
+import traceback
 
 class AppInfoImporter(abc.ABC):
 	"""Represents a source of additional application data (permissions, trackers, etc)"""
@@ -69,7 +70,10 @@ class AppInfoImporterThread:
 								logger.info(f"{type(importer).__name__} checking {app.id}")
 								importer.import_info_for_app(copy.deepcopy(app), self.application_repo)
 							except Exception as e:
-								logger.warning(f"Importer {type(importer).__name__} failed: {e}")
+								if configs.main.server.debug:
+									logger.warning(f"Importer {type(importer).__name__} failed for {app.id}: {traceback.format_exc()}")
+								else:
+									logger.warning(f"Importer {type(importer).__name__} failed for {app.id}: {e}")
 
 				next_scan_timer = Timer(configs.main.importers.timer, lambda:
 					self.events.put(ThreadEvent(ThreadEventType.SCAN_APPS)))
