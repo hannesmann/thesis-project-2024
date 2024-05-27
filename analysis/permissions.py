@@ -23,7 +23,7 @@ class PermissionsAnalyzer(AppAnalyzer):
 				if permission in line:
 					dangerous_perm_total += 1
 
-		score = dangerous_perm_total / 40
+		score = dangerous_perm_total / len(configs.main.analysis.permissions.dangerous_permissions)
 		if(score > 1):
 			score = 1
 		return score
