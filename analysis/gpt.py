@@ -34,6 +34,9 @@ class GPTAnalyzer(AppAnalyzer):
 		pdf.name = app.privacy_policy_url
 		file = PdfFile.from_bytes(pdf)
 
+		# with open(f"output_{app.id}.pdf", "wb") as f:
+		#	 f.write(pdf.getbuffer())
+
 		# Chunk file before analysis.
 		chunked_file = chunk_file(file, chunk_size=300, chunk_overlap=0)
 

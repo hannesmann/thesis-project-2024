@@ -18,14 +18,23 @@ def find_printable_privacy_policy_url(url):
 
 	# Check if there is a printable version (found on facebook.com)
 	res_current = requests.get(url, headers=language_header)
-	res_printable = requests.get(res_current.url.split("?")[0].strip("/ ") + "/printable", headers=language_header)
 
-	if res_current.text != res_printable.text and res_printable.status_code == 200:
-		return res_printable.url.strip("/ ")
+	page = BeautifulSoup(res_current.text, "html.parser")
+	for link in page.find_all("a"):
+		text = link.get_text(strip=True).lower()
+		if "print" in text:
+			res_printable = requests.get(res_current.url.split("?")[0].strip("/ ") + "/printable", headers=language_header)
+			if res_current.text != res_printable.text and res_printable.status_code == 200:
+				return res_printable.url.strip("/ ")
+
+	if res_current.history:
+		logger.info("Request was redirected:")
+		for res_redirect in res_current.history:
+			logger.info(f"{res_redirect.status_code} {res_redirect.url}")
 
 	# TODO: Check for ?PrintView=true (microsoft.com)
 	# Page hash is the same, seems to be running in JavaScript
-	return url
+	return res_current.url.strip("/ ")
 
 class AppStoreImporter(AppInfoImporter):
 	"""Imports store page URL and privacy policy URL from iTunes Search API"""
