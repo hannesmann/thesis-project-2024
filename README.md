@@ -20,7 +20,7 @@ The project implements a proof-of-concept application for performing data collec
 
 ### Running the server
 
-Before starting the server, API keys should be added in `secrets.toml`.
+Before starting the server, API keys should be added in `secrets.toml`. For more detailed instructions on setting up keys for Microsoft Intune, see [docs/intune.md](docs/intune.md).
 
 ```bash
 # Install dependencies
