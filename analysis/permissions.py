@@ -14,6 +14,8 @@ class PermissionsAnalyzer(AppAnalyzer):
 	def analyze_app(self, app):
 		if app.os != OperatingSystem.ANDROID:
 			raise ValueError("Only Android apps can be checked for permissions")
+		if not app.permissions:
+			raise ValueError("App has not or could not be analyzed by Exodus Privacy")
 
 		# Currently google lists a total of 40 permissions marked as dangerous at https://developer.android.com/reference/android/Manifest.permission
 		# This method simply checks how many are requested and then normalizes the score.

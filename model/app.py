@@ -33,18 +33,20 @@ class Application:
 		self.os = os
 		self.name = name
 
-		self.permissions = set()
+		self.permissions = None
 		if permissions:
+			self.permissions = set()
 			for permission in permissions:
 				self.permissions.add(permission)
-		# Convert to list to make json.dump happy
-		self.permissions = list(self.permissions)
+			# Convert to list to make json.dump happy
+			self.permissions = list(self.permissions)
 
-		self.trackers = set()
+		self.trackers = None
 		if trackers:
+			self.trackers = set()
 			for tracker in trackers:
 				self.trackers.add(tracker)
-		self.trackers = list(self.trackers)
+			self.trackers = list(self.trackers)
 
 		self.store_page_url = store_page_url
 		self.privacy_policy_url = privacy_policy_url

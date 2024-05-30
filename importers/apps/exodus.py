@@ -17,8 +17,8 @@ class ExodusImporter(AppInfoImporter):
 	@sleep_and_retry
 	@limits(calls=30, period=1)
 	def import_info_for_app(self, app, repo):
-		# TODO: Apps can have zero trackers
-		if len(app.permissions) > 0 and len(app.trackers) > 0:
+		# Already analyzed
+		if app.permissions and app.trackers:
 			return
 
 		# The Exodus API has occasionally given us trouble due to misconfigured caches on their end. Hopefully it keeps working.
@@ -29,6 +29,11 @@ class ExodusImporter(AppInfoImporter):
 			headers = {'Authorization': f'Token {configs.secrets.api.exodus}'}
 		)
 		data = versionBlob.json()
+
+		# Not found
+		if len(data) == 0:
+			logger.warning(f"App {app.id} not found in Exodus Privacy database")
+			return
 
 		# The reports are unordered so we need to iterate over them to find the most recent version. The bigger the versionCode, the more recent it is.
 		# Note that the versionCode and versionName are different. The code is just an integer, while the name is the true versions like "460.0.0.34.89" as an example.
@@ -55,5 +60,5 @@ class ExodusImporter(AppInfoImporter):
 
 		# Add to repo and return
 		repo.add_or_update_app(app)
-		return
+		return#
 

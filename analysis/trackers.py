@@ -14,6 +14,8 @@ class TrackerAnalyzer(AppAnalyzer):
 	def analyze_app(self, app):
 		if app.os != OperatingSystem.ANDROID:
 			raise ValueError("Only Android apps can be checked for trackers")
+		if not app.trackers:
+			raise ValueError("App has not or could not be analyzed by Exodus Privacy")
 
 		# According Binns et al. the median number of trackers embedded in 1 000 000 investigated apps was 10. Q1 and Q3 were 5 and 18 respectively.
 		# This is somewhat arbitrary, but for the time being we assume it is very undesirable to have apps in the upper quarter of total number of trackers.

@@ -182,11 +182,11 @@ class ApplicationRepository:
 			# Save to android_permissions and android_trackers if applicable
 			if app.os == OperatingSystem.ANDROID:
 				self.conn.execute(permissions.delete().where(permissions.columns.app_id == app.id))
-				for permission in app.permissions:
+				for permission in app.permissions or []:
 					self.conn.execute(permissions.insert().values(app_id = app.id, permission = permission))
 
 				self.conn.execute(trackers.delete().where(trackers.columns.app_id == app.id))
-				for tracker in app.trackers:
+				for tracker in app.trackers or []:
 					self.conn.execute(trackers.insert().values(app_id = app.id, tracker = tracker))
 
 			# Risk scores are always deleted and recreated with INSERT
