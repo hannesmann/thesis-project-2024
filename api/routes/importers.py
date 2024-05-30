@@ -12,7 +12,6 @@ def define_import_routes(app, importers):
 	def upload_csv(os):
 		try:
 			importer = CSVImporter(request.body.read().decode("utf-8"), OperatingSystem(os))
-			logger.info(f"CSV uploaded with {len(importer.apps)} apps")
 			importers.devices.queue_import(importer)
 			return make_success({"imported_count": len(importer.apps)})
 		except Exception as e:

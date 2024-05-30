@@ -20,8 +20,11 @@ class CSVImporter(DeviceImporter):
 			app_id = row["app"].strip(". ")
 			self.apps[app_id] = Munch(info=Application(app_id, os), count=int(row["count"]))
 
+	def connect(self):
+		pass
+
 	def	fetch_discovered_apps(self):
-		return self.apps.values()
+		return self.apps
 
 	def	fetch_devices(self):
 		# TODO: CSV should be able to specify devices (apps.csv and devices.csv?)

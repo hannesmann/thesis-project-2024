@@ -43,7 +43,7 @@ class AppInfoImporterThread:
 		self.application_repo = application_repo
 
 		self.importers = []
-		if configs.main.importers.autorun and default_importers:
+		if default_importers and configs.main.importers.autorun:
 			logger.info(f"Adding app info importers: {" ".join([type(i).__name__ for i in default_importers])}")
 			self.importers = default_importers
 

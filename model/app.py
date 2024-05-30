@@ -7,6 +7,7 @@ import configs
 class OperatingSystem(str, Enum):
 	"""Enumeration of supported mobile operating systems"""
 
+	UNKNOWN = "unknown"
 	ANDROID = "android"
 	IOS = "ios"
 

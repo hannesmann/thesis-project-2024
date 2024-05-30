@@ -56,6 +56,7 @@ class DeviceImporterThread:
 
 		self.events = Queue()
 		if default_importers and configs.main.importers.autorun:
+			logger.info(f"Adding device importers: {" ".join([type(i).__name__ for i in default_importers])}")
 			for importer in default_importers:
 				self.queue_import(importer)
 
@@ -90,13 +91,16 @@ class DeviceImporterThread:
 			if event.type == ThreadEventType.IMPORT_DATA:
 				importer = event.data
 
-				for app in importer.fetch_discovered_apps():
+				apps = importer.fetch_discovered_apps()
+				logger.info(f"Got {len(apps)} apps from {type(importer).__name__}")
+				for app in apps:
 					# TODO: Add count
-					self.application_repo.add_or_update_app(app.info)
+					self.application_repo.add_or_update_app(apps[app].info)
+
+				devices = importer.fetch_devices()
+				logger.info(f"Got {len(devices)} devices from {type(importer).__name__}")
 
 				next_fetch_time = importer.next_fetch_time()
-				logger.info(f"Fetched data from {type(importer).__name__}")
-
 				if next_fetch_time:
 					delay = abs(round((next_fetch_time - datetime.datetime.now()).total_seconds()))
 					logger.info(f"Next fetch for {type(importer).__name__} in {datetime.timedelta(seconds=delay)}")
