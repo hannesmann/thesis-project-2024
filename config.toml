@@ -100,6 +100,7 @@ dangerous_permissions = [
 # System apps are excluded from analysis
 android = [
 	"android",
+	"android.auto_generated_rro_vendor__",
 	"com.android.backupconfirm",
 	"com.android.bips",
 	"com.android.bluetooth",

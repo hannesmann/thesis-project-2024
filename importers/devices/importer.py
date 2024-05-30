@@ -2,6 +2,7 @@
 # See LICENSE for details
 
 import abc
+import traceback
 import configs
 import datetime
 
@@ -91,22 +92,35 @@ class DeviceImporterThread:
 			if event.type == ThreadEventType.IMPORT_DATA:
 				importer = event.data
 
-				apps = importer.fetch_discovered_apps()
-				logger.info(f"Got {len(apps)} apps from {type(importer).__name__}")
-				for app in apps:
-					# TODO: Add count
-					self.application_repo.add_or_update_app(apps[app].info)
+				try:
+					apps = importer.fetch_discovered_apps()
+					devices = importer.fetch_devices()
 
-				devices = importer.fetch_devices()
-				logger.info(f"Got {len(devices)} devices from {type(importer).__name__}")
+					logger.info(f"Got {len(apps)} apps from {type(importer).__name__}")
+					for app in apps:
+						# TODO: Add count
+						self.application_repo.add_or_update_app(apps[app].info)
 
-				next_fetch_time = importer.next_fetch_time()
-				if next_fetch_time:
-					delay = abs(round((next_fetch_time - datetime.datetime.now()).total_seconds()))
-					logger.info(f"Next fetch for {type(importer).__name__} in {datetime.timedelta(seconds=delay)}")
-					self.delayed_import(importer, delay)
-				else:
-					logger.info(f"{type(importer).__name__} done")
+					logger.info(f"Got {len(devices)} devices from {type(importer).__name__}")
+					for device in devices:
+						self.devices_repo.add_or_replace_device(devices[device])
+
+					next_fetch_time = importer.next_fetch_time()
+					if next_fetch_time:
+						delay = abs(round((next_fetch_time - datetime.datetime.now()).total_seconds()))
+						logger.info(f"Next fetch for {type(importer).__name__} in {datetime.timedelta(seconds=delay)}")
+						self.delayed_import(importer, delay)
+					else:
+						logger.info(f"{type(importer).__name__} done")
+				except Exception as e:
+					if configs.main.server.debug:
+						logger.warning(f"Importer {type(importer).__name__} failed: {traceback.format_exc()}")
+					else:
+						logger.warning(f"Importer {type(importer).__name__} failed: {e}")
+
+					logger.info(f"Retrying {type(importer).__name__} in 1 minute...")
+					self.delayed_import(importer, 60)
+
 
 			elif ThreadEventType.STOP_THREAD:
 				return

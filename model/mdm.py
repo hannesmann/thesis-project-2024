@@ -28,7 +28,7 @@ class Device:
 		self.name = name
 		self.os = os
 		self.ownership = ownership
-		self.discovered_apps = list()
+		self.discovered_apps = []
 
 	def update_discovered_apps(self, apps, replace=True):
 		"""
@@ -38,15 +38,15 @@ class Device:
 		"""
 
 		if replace:
-			self.discovered_apps = list()
+			self.discovered_apps = []
 
 		for app in apps:
 			# List of model.Application
 			if hasattr(app, "package_id") and app.package_id not in self.discovered_apps:
-				self.discovered_apps.add(app.package_id)
+				self.discovered_apps.append(app.package_id)
 			# List of application package IDs
 			elif isinstance(app, str) and app not in self.discovered_apps:
-				self.discovered_apps.add(app)
+				self.discovered_apps.append(app)
 			else:
 				raise TypeError("Discovered apps should be a list of model.Application or package IDs")
 

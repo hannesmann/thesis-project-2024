@@ -77,7 +77,7 @@ class DevicesRepository:
 		# Reset scores
 		self.risk_scores = {}
 
-		for device in self.devices:
+		for device in self.devices.values():
 			if len(device.discovered_apps) > 0:
 				combined_score = None
 
@@ -88,8 +88,9 @@ class DevicesRepository:
 				for app in analyzed_device_apps:
 					combined_score = combine_device_risk_scores(combined_score, apps[app])
 
-				self.risk_scores[device.id] = combined_score
-				logger.info(f"Updated risk score for device {device.id}: {combined_score} (from {analyzed_device_apps} apps)")
+				if combined_score:
+					self.risk_scores[device.id] = combined_score
+					logger.info(f"Updated risk score for device {device.id}: {combined_score} (from {len(analyzed_device_apps)} apps)")
 
 	def combine_scores_for_organization(self):
 		combined_score = None
@@ -115,12 +116,12 @@ class DevicesRepository:
 				drow.ownership
 			)
 
-			discovered_apps = list()
+			discovered_apps_for_device = list()
 			# Read device_discovered_apps for existing discovered applications
 			arows = self.conn.execute(discovered_apps.select().where(discovered_apps.columns.device_id == drow.id)).all()
 			for	arow in arows:
-				discovered_apps.add(arow.app_id)
-			device.update_discovered_apps(discovered_apps)
+				discovered_apps_for_device.append(arow.app_id)
+			device.update_discovered_apps(discovered_apps_for_device)
 
 			# Add device to repository
 			self.add_or_replace_device(device)
@@ -134,6 +135,7 @@ class DevicesRepository:
 	def __exit__(self, *args):
 		# Devices are always deleted and recreated with INSERT
 		self.conn.execute(devices.delete())
+
 		for device in self.devices.values():
 			self.conn.execute(devices.insert().values(
 				id = device.id,
@@ -145,7 +147,7 @@ class DevicesRepository:
 			# Save discovered apps if applicable
 			self.conn.execute(discovered_apps.delete().where(discovered_apps.columns.device_id == device.id))
 			for app in device.discovered_apps:
-				self.conn.execute(discovered_apps.insert().values(device_id = device.id, app_id = app.id))
+				self.conn.execute(discovered_apps.insert().values(device_id = device.id, app_id = app))
 
 			# Risk scores are always deleted and recreated with INSERT
 			self.conn.execute(risk_scores.delete().where(risk_scores.columns.device_id == device.id))
