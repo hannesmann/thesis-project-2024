@@ -11,6 +11,13 @@ import requests
 
 language_header = {"Accept-Language": "en-US,en"}
 
+def verify_url_is_reachable(url):
+	try:
+		res = requests.get(url, headers=language_header)
+		return res.status_code == 200
+	except:
+		return False
+
 @sleep_and_retry
 @limits(calls=1, period=1)
 def find_printable_privacy_policy_url(url):
@@ -97,7 +104,10 @@ class PlayStoreImporter(AppInfoImporter):
 		if not app.store_page_url:
 			# The Play Store URL is predictable based on the app ID
 			app.store_page_url = f"https://play.google.com/store/apps/details?id={app.id}"
-			logger.info(f"Found store page URL for {app.id}: {app.store_page_url}")
+			if verify_url_is_reachable(app.store_page_url):
+				logger.info(f"Found store page URL for {app.id}: {app.store_page_url}")
+			else:
+				app.store_page_url = None
 		if app.store_page_url and not app.privacy_policy_url:
 			app.privacy_policy_url = self.import_privacy_policy_url(app)
 			if app.privacy_policy_url:
