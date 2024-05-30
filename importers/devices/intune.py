@@ -117,9 +117,9 @@ class IntuneImporter(DeviceImporter):
 			for device in discovered_devices:
 				if device["operatingSystem"] in intune_supported_operating_systems:
 					os = intune_supported_operating_systems[device["operatingSystem"]]
-					ownership = DeviceOwnership.USER_OWNED
+					ownership = DeviceOwnership.CORPORATE_OWNED
 					if device["managedDeviceOwnerType"] == "personal":
-						ownership = DeviceOwnership.CORPORATE_OWNED
+						ownership = DeviceOwnership.USER_OWNED
 					result[device["id"]] = Device(device["id"], device["deviceName"].replace(" ", "_"), os, ownership)
 
 					# Fetch app device statuses and associate with our results
