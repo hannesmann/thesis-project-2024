@@ -7,7 +7,7 @@ import configs
 import datetime
 
 from enum import Enum
-from repository.apps import ApplicationRepository
+from model.mdm import DeviceOwnership
 from threading import Thread, Timer
 from queue import Queue
 from loguru import logger
@@ -104,6 +104,8 @@ class DeviceImporterThread:
 
 					logger.info(f"Got {len(devices)} devices from {type(importer).__name__}")
 					for device in devices:
+						if device.ownership == DeviceOwnership.USER_OWNED:
+							logger.warning(f"Device {device.name} is user-owned, analysis will be incomplete!")
 						self.devices_repo.add_or_replace_device(devices[device])
 
 					next_fetch_time = importer.next_fetch_time()
