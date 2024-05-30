@@ -55,7 +55,7 @@ if __name__ == "__main__":
 		with app_repository, devices_repository:
 			# Initialize importers
 			app_info_importer_thread = AppInfoImporterThread(app_repository, default_app_info_importers)
-			device_importer_thread = DeviceImporterThread(app_repository, devices_repository)
+			device_importer_thread = DeviceImporterThread(app_repository, devices_repository, default_device_importers)
 			# Initialize analyzers
 			app_analyzer_thread = AppAnalyzerThread(app_repository, devices_repository, default_app_analyzers)
 

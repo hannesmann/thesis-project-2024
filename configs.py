@@ -35,4 +35,7 @@ def load(main_file, secrets_file):
 	if not secrets.api.exodus:
 		logger.warning("secrets.api.exodus is not set. The Exodus Privacy API will not be used for fetching permissions and trackers.")
 
+	if not secrets.api.intune.secret:
+		logger.warning("secrets.api.intune.secret is not set. App and device import needs to be done manually through the CSV upload endpoint.")
+
 	return True

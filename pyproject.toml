@@ -32,6 +32,7 @@ bottle = "^0.12.25"
 waitress = "^3.0.0"
 sqlalchemy = "^2.0.30"
 munch = "^4.0.0"
+msal = "^1.28.0"
 
 [build-system]
 requires = ["poetry-core"]

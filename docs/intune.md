@@ -28,4 +28,4 @@ The server uses a client secret to identify itself. Microsoft also provides the 
 
 ![Entra Admin Center - Certificates & secrets](intune_s5.png)
 
-Entra should now give you the option to copy the secret and client ID (this can only be done ONCE). These should be added to `secrets.toml` under `api.msgraph`. The `authority` field also needs to be set manually depending on how your Intune instance is configured. For instances running on Azure, `login.microsoftonline.com` is the preferred domain and the tenant ID can be found in Identity > Overview.
+Entra should now give you the option to copy the secret and client ID (this can only be done ONCE). These should be added to `secrets.toml` under `api.intune`. The `authority` field also needs to be set manually depending on how your Intune instance is configured. For instances running on Azure, `login.microsoftonline.com` is the preferred domain and the tenant ID can be found in Identity > Overview.
