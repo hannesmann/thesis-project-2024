@@ -86,11 +86,11 @@ class DevicesRepository:
 				device_app_ids = map(lambda a: f"{a}_{device.os.name}", device.discovered_apps)
 				analyzed_device_apps = set(repo.risk_scores.keys()).intersection(device_app_ids)
 				for app in analyzed_device_apps:
-					combined_score = combine_device_risk_scores(combined_score, repo.apps[app])
+					combined_score = combine_device_risk_scores(combined_score, repo.risk_scores[app].overall_score)
 
 				if combined_score:
 					self.risk_scores[device.id] = combined_score
-					logger.info(f"Updated risk score for device {device.id}: {combined_score} (from {len(analyzed_device_apps)} apps)")
+					logger.info(f"Updated risk score for device {device.name}: {int(combined_score * 100)}% (from {len(analyzed_device_apps)} apps)")
 
 	def combine_scores_for_organization(self):
 		combined_score = None

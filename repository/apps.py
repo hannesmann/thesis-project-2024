@@ -112,7 +112,7 @@ class ApplicationRepository:
 			configs.main.analysis.risk_score_method_app
 		)
 
-		logger.info(f"Updated risk score for app {app.id}: {overall_score} (from {len(sources)} sources)")
+		logger.info(f"Updated risk score for app {app.id}: {int(overall_score * 100)}% (from {len(sources)} sources)")
 
 	def __enter__(self):
 		# Create default tables

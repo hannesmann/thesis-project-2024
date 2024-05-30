@@ -120,7 +120,7 @@ class IntuneImporter(DeviceImporter):
 					ownership = DeviceOwnership.USER_OWNED
 					if device["managedDeviceOwnerType"] == "personal":
 						ownership = DeviceOwnership.CORPORATE_OWNED
-					result[device["id"]] = Device(device["id"], device["deviceName"], os, ownership)
+					result[device["id"]] = Device(device["id"], device["deviceName"].replace(" ", "_"), os, ownership)
 
 					# Fetch app device statuses and associate with our results
 					path = f"deviceManagement/managedDevices/{device["id"]}/detectedApps?$select=displayName"
@@ -128,7 +128,7 @@ class IntuneImporter(DeviceImporter):
 					for app in discovered_device_apps:
 						result[device["id"]].update_discovered_apps([app["displayName"]], False)
 				else:
-					logger.warning(f"Got device {device["deviceName"]} for unknown platform: {device["operatingSystem"]}")
+					logger.warning(f"Got device {device["id"]} for unknown platform: {device["operatingSystem"]}")
 
 			self.last_fetch_time = datetime.datetime.now()
 			return result
