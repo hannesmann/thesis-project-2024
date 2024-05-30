@@ -94,9 +94,10 @@ class DeviceImporterThread:
 
 				try:
 					apps = importer.fetch_discovered_apps()
+					system_apps = [a for a in apps if apps[a].info.is_system_app()]
 					devices = importer.fetch_devices()
 
-					logger.info(f"Got {len(apps)} apps from {type(importer).__name__}")
+					logger.info(f"Got {len(apps)} ({len(system_apps)} system) apps from {type(importer).__name__}")
 					for app in apps:
 						# TODO: Add count
 						self.application_repo.add_or_update_app(apps[app].info)

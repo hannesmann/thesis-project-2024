@@ -73,7 +73,7 @@ class DevicesRepository:
 		# Devices should always be replaced since complete information is always retrieved from MDM
 		self.devices[device.id] = device
 
-	def update_risk_scores_from_repo(self, apps):
+	def update_risk_scores_from_repo(self, repo):
 		# Reset scores
 		self.risk_scores = {}
 
@@ -84,9 +84,9 @@ class DevicesRepository:
 				# Build an intersection of all apps that are both in the repo and device
 				# We need to build a list with the format "org.app.x_ANDROID", "com.app.y_IOS", etc to find risk scores
 				device_app_ids = map(lambda a: f"{a}_{device.os.name}", device.discovered_apps)
-				analyzed_device_apps = set(apps.risk_scores.keys()).intersection(device_app_ids)
+				analyzed_device_apps = set(repo.risk_scores.keys()).intersection(device_app_ids)
 				for app in analyzed_device_apps:
-					combined_score = combine_device_risk_scores(combined_score, apps[app])
+					combined_score = combine_device_risk_scores(combined_score, repo.apps[app])
 
 				if combined_score:
 					self.risk_scores[device.id] = combined_score

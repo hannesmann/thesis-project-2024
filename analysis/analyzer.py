@@ -59,7 +59,7 @@ class AppAnalyzerThread:
 			event = self.events.get()
 
 			if event.type == ThreadEventType.ANALYZE_APPS:
-				for app in self.application_repo.apps.values():
+				for app in filter(lambda a: not a.is_system_app(), self.application_repo.apps.values()):
 					sources = {}
 
 					for analyzer in self.analyzers:

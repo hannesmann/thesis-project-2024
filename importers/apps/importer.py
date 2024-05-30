@@ -63,8 +63,7 @@ class AppInfoImporterThread:
 			if event.type == ThreadEventType.SCAN_APPS:
 				for app in self.application_repo.apps.values():
 					# Don't check system apps or apps that we already have all info available for
-					should_check_app = not app.is_complete_app() and not app.is_system_app()
-					if should_check_app:
+					if not app.is_complete_app() and not app.is_system_app():
 						for importer in filter(lambda i: i.os() == app.os, self.importers):
 							try:
 								logger.info(f"{type(importer).__name__} checking {app.id}")

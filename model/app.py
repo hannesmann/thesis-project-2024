@@ -2,6 +2,8 @@
 # See LICENSE for details
 
 from enum import Enum
+from fnmatch import fnmatchcase
+
 import configs
 
 class OperatingSystem(str, Enum):
@@ -54,17 +56,20 @@ class Application:
 		self.other_os_id = other_os_id
 
 	def is_system_app(self):
+		patterns = []
+
 		if self.os == OperatingSystem.ANDROID:
-			return self.id.lower() in configs.main.analysis.system_apps.android
+			patterns = configs.main.analysis.system_apps.android
 		elif self.os == OperatingSystem.IOS:
-			return self.id.lower() in configs.main.analysis.system_apps.ios
-		return False
+			patterns = configs.main.analysis.system_apps.ios
+
+		return any([fnmatchcase(self.id, p) or self.id == p for p in patterns])
 
 	def is_complete_app(self):
 		"""Returns true if this app has all the information possible for this operating system"""
 
 		if self.os == OperatingSystem.ANDROID:
-			return self.name and len(self.permissions) > 0 and len(self.trackers) > 0 and self.store_page_url and self.privacy_policy_url
+			return self.name and self.permissions and self.trackers and self.store_page_url and self.privacy_policy_url
 		else:
 			return self.name and self.store_page_url and self.privacy_policy_url
 
