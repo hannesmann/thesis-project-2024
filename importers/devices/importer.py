@@ -104,7 +104,7 @@ class DeviceImporterThread:
 
 					logger.info(f"Got {len(devices)} devices from {type(importer).__name__}")
 					for device in devices:
-						if device.ownership == DeviceOwnership.USER_OWNED:
+						if devices[device].ownership == DeviceOwnership.USER_OWNED:
 							logger.warning(f"Device {device.name} is user-owned, analysis will be incomplete!")
 						self.devices_repo.add_or_replace_device(devices[device])
 
