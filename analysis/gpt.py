@@ -49,7 +49,8 @@ class GPTAnalyzer(AppAnalyzer):
 		)
 
 		if configs.main.server.debug:
-			logger.info(f"Response from GPT: {result.answer}")
+			logger.info(f"Query to {configs.main.analysis.gpt.model}: {query} {question_epilogue}")
+			logger.info(f"Answer from {configs.main.analysis.gpt.model}: {result.answer}")
 
 		answer = result.answer.lower()
 		if answer.startswith("yes"):
