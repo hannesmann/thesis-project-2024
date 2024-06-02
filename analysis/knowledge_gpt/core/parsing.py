@@ -3,12 +3,12 @@ from typing import List, Any, Optional
 import re
 
 import docx2txt
-from langchain.docstore.document import Document
 import fitz
 from hashlib import md5
 
 from abc import abstractmethod, ABC
 from copy import deepcopy
+from langchain_core.documents import Document
 
 
 class File(ABC):

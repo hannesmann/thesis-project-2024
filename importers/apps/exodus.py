@@ -17,6 +17,9 @@ class ExodusImporter(AppInfoImporter):
 	@sleep_and_retry
 	@limits(calls=30, period=1)
 	def import_info_for_app(self, app, repo):
+		if not configs.secrets.api.exodus:
+			raise ValueError("configs.secrets.api.exodus not set")
+
 		# Already analyzed
 		if app.permissions and app.trackers:
 			return
@@ -29,6 +32,10 @@ class ExodusImporter(AppInfoImporter):
 			headers = {'Authorization': f'Token {configs.secrets.api.exodus}'}
 		)
 		data = versionBlob.json()
+
+		if versionBlob.status_code != 200:
+			logger.warning(f"Got {versionBlob.status_code} from Exodus")
+			return
 
 		# Not found
 		if len(data) == 0:

@@ -1,10 +1,10 @@
 from typing import List
 from langchain.chains.qa_with_sources import load_qa_with_sources_chain
 from analysis.knowledge_gpt.core.prompts import STUFF_PROMPT
-from langchain.docstore.document import Document
 from analysis.knowledge_gpt.core.embedding import FolderIndex
-from pydantic import BaseModel
-from langchain.chat_models.base import BaseChatModel
+from pydantic.v1 import BaseModel
+from langchain_core.documents import Document
+from langchain_core.language_models import BaseChatModel
 
 
 class AnswerWithSources(BaseModel):

@@ -1,10 +1,9 @@
-from langchain.vectorstores import VectorStore
 from typing import Iterable, List, Any
-from langchain.docstore.document import Document
-from langchain.embeddings.base import Embeddings
-from langchain.embeddings.fake import FakeEmbeddings as FakeEmbeddingsBase
-from langchain.chat_models.fake import FakeListChatModel
 from typing import Optional
+from langchain_community.chat_models import FakeListChatModel
+from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
+from langchain_core.vectorstores import VectorStore
 
 
 class FakeChatModel(FakeListChatModel):
@@ -13,7 +12,7 @@ class FakeChatModel(FakeListChatModel):
         super().__init__(responses=responses, **kwargs)
 
 
-class FakeEmbeddings(FakeEmbeddingsBase):
+class FakeEmbeddings(Embeddings):
     def __init__(self, **kwargs):
         super().__init__(size=4, **kwargs)
 

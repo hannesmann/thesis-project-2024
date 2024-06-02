@@ -1,6 +1,6 @@
-from langchain.docstore.document import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from analysis.knowledge_gpt.core.parsing import File
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
 def chunk_file(
