@@ -22,7 +22,7 @@ def get_request_logger(origfn):
 		diff = (monotonic() - start) * 1000.0
 
 		# Log request and handler time
-		logger.info(f"[{request.remote_addr}] {request.method} {request.url.strip("/ ")} in {round(diff, 2)} ms")
+		logger.info(f"[{request.remote_addr}] {request.method} {request.url.strip('/ ')} in {round(diff, 2)} ms")
 
 		return res
 	return log_request
@@ -44,7 +44,7 @@ class RESTBottle(Bottle):
 			error = ERROR_WRONG_METHOD
 
 		if configs.main.server.log_requests:
-			logger.warning(f"[{request.remote_addr}] {request.method} {request.url.strip("/ ")} {old.status_line}")
+			logger.warning(f"[{request.remote_addr}] {request.method} {request.url.strip('/ ')} {old.status_line}")
 
 		response.content_type = "application/json"
 		return json.dumps(make_error(error))
