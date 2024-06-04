@@ -44,7 +44,7 @@ def find_printable_privacy_policy_url(url):
 	return res_current.url.strip("/ ")
 
 class AppStoreImporter(AppInfoImporter):
-	"""Imports store page URL and privacy policy URL from iTunes Search API"""
+	"""Imports name, store page URL and privacy policy URL from iTunes Search API"""
 
 	def	os(self):
 		return OperatingSystem.IOS
@@ -52,17 +52,17 @@ class AppStoreImporter(AppInfoImporter):
 	# iTunes Search API is limited to 20 calls per minute
 	@sleep_and_retry
 	@limits(calls=20, period=60)
-	def import_store_page_url(self, app):
-		res = requests.get(f"https://itunes.apple.com/lookup?bundleId={app.id}").json()
+	def import_itunes_information(self, app):
+		res = requests.get(f"https://itunes.apple.com/lookup?bundleId={app.id}", headers=language_header).json()
 		# TODO: if res["resultCount"] == 0 => remove app
 		if res["resultCount"] > 0 and res["results"][0]:
-			return res["results"][0]["trackViewUrl"]
-		return None
+			app.store_page_url = res["results"][0]["trackViewUrl"]
+			app.name = res["results"][0]["trackName"]
 
 	# Since we are fetching from the App Store, limit to a low amount of requests
 	@sleep_and_retry
 	@limits(calls=1, period=5)
-	def import_privacy_policy_url(self, app):
+	def get_privacy_policy_url(self, app):
 		res = requests.get(app.store_page_url, headers=language_header).text
 		page = BeautifulSoup(res, "html.parser")
 		for link in page.find_all("a"):
@@ -72,24 +72,36 @@ class AppStoreImporter(AppInfoImporter):
 		return None
 
 	def	import_info_for_app(self, app, repo):
-		if not app.store_page_url:
-			app.store_page_url = self.import_store_page_url(app)
+		if not app.name or not app.store_page_url:
+			self.import_itunes_information(app)
 			if app.store_page_url:
 				logger.info(f"Found store page URL for {app.id}: {app.store_page_url}")
+			if app.name:
+				logger.info(f"Found name for {app.id}: {app.name}")
 		if app.store_page_url and not app.privacy_policy_url:
-			app.privacy_policy_url = self.import_privacy_policy_url(app)
+			app.privacy_policy_url = self.get_privacy_policy_url(app)
 			if app.privacy_policy_url:
 				logger.info(f"Found privacy page URL for {app.id}: {app.privacy_policy_url}")
 
 		repo.add_or_update_app(app)
 
 class PlayStoreImporter(AppInfoImporter):
-	"""Imports store page URL and privacy policy URL from Play Store"""
+	"""Imports name, store page URL and privacy policy URL from Play Store"""
 
 	def	os(self):
 		return OperatingSystem.ANDROID
 
 	# Since we are fetching from the Play Store, limit to a low amount of requests
+	@sleep_and_retry
+	@limits(calls=1, period=5)
+	def import_name(self, app):
+		res = requests.get(f"https://play.google.com/store/apps/details?id={app.id}", headers=language_header).text
+		page = BeautifulSoup(res, "html.parser")
+		element = page.find("h1", itemprop="name")
+		if element:
+			return element.text
+		return None
+
 	@sleep_and_retry
 	@limits(calls=1, period=5)
 	def import_privacy_policy_url(self, app):
@@ -101,11 +113,14 @@ class PlayStoreImporter(AppInfoImporter):
 		return None
 
 	def	import_info_for_app(self, app, repo):
-		if not app.store_page_url:
+		if not app.name or app.store_page_url:
 			# The Play Store URL is predictable based on the app ID
 			app.store_page_url = f"https://play.google.com/store/apps/details?id={app.id}"
 			if verify_url_is_reachable(app.store_page_url):
 				logger.info(f"Found store page URL for {app.id}: {app.store_page_url}")
+				app.name = self.import_name(app)
+				if app.name:
+					logger.info(f"Found name for {app.id}: {app.privacy_policy_url}")
 			else:
 				app.store_page_url = None
 		if app.store_page_url and not app.privacy_policy_url:
