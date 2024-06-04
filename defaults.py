@@ -13,6 +13,6 @@ default_secrets_file = "secrets.toml"
 
 default_log_format = "<bold>[{time:YYYY-MM-DD HH:mm}]</bold> <lvl>[{level}]</lvl> {message}"
 
-default_app_info_importers = (ExodusImporter(), AppStoreImporter(), PlayStoreImporter())
+default_app_info_importers = (AppStoreImporter(), PlayStoreImporter(), ExodusImporter())
 default_device_importers = (IntuneImporter(),)
 default_app_analyzers = (GPTAnalyzer(), PermissionsAnalyzer(), TrackerAnalyzer())
