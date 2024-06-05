@@ -103,26 +103,16 @@ class GPTAnalyzer(AppAnalyzer):
 			score = 0
 
 			# Run the O'Loughlin type query
-			if self.ask(llm, folder_index, question_personal_data):
-				if not self.ask(llm, folder_index, question_encryption):
-					score = 1
-				elif not self.ask(llm, folder_index, question_data_storage):
-					score = 1
-				elif not self.ask(llm, folder_index, question_delete_data):
-					score = 0.5
-				elif not self.ask(llm, folder_index, question_edit_data):
-					score = 0.5
-				elif not self.ask(llm, folder_index, question_needs_identification):
-					score = 0.5
-			else:
-				if not self.ask(llm, folder_index, question_encryption):
-					score = 0.5
-				elif not self.ask(llm, folder_index, question_data_storage):
-					score = 0.5
-				elif not self.ask(llm, folder_index, question_delete_data):
-					score = 0.5
-				elif not self.ask(llm, folder_index, question_edit_data):
-					score = 0.5
+			if not self.ask(llm, folder_index, question_encryption):
+				score = 1
+			elif not self.ask(llm, folder_index, question_data_storage):
+				score = 1
+			elif not self.ask(llm, folder_index, question_delete_data):
+				score = 0.5
+			elif not self.ask(llm, folder_index, question_edit_data):
+				score = 0.5
+			elif not self.ask(llm, folder_index, question_needs_identification):
+				score = 0.5
 
 		total_tokens += cb.total_tokens
 		total_cost += cb.total_cost
