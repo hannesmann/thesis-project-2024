@@ -4,11 +4,9 @@
 import pdfkit
 import configs
 
-from enum import Enum
 from io import BytesIO
 from loguru import logger
 from ratelimit import sleep_and_retry, limits
-from signal import signal, SIGALRM
 
 from analysis.analyzer import AppAnalyzer
 
@@ -61,7 +59,8 @@ class GPTAnalyzer(AppAnalyzer):
 		raise ValueError("GPT returned unexpected response")
 
 	def analyze_app(self, app):
-		global total_tokens, total_cost
+		global total_tokens
+		global total_cost
 
 		if not configs.secrets.api.openai:
 			raise ValueError("configs.secrets.api.openai not set")

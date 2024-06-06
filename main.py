@@ -46,7 +46,7 @@ if __name__ == "__main__":
 	if configs.main.server.debug:
 		logger.warning("configs.main.server.debug is set. Running Bottle and SQLAlchemy in debug mode.")
 
-	engine = create_engine(configs.main.server.database_url, echo=configs.main.server.debug)
+	engine = create_engine(configs.main.server.database_url)
 	with engine.connect() as conn:
 		# Initialize repositories
 		app_repository = ApplicationRepository(conn)

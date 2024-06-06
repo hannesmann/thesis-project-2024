@@ -40,9 +40,9 @@ timer = 600
 
 [analysis.gpt]
 # Select the model that should be used for privacy policy analysis
-# Recommended: gpt-3.5-turbo or gpt-4-turbo
-# GPT-4 Turbo performs high quality analysis but has a 20x higher cost (https://openai.com/api/pricing)
-model = "gpt-3.5-turbo"
+# Recommended: gpt-3.5-turbo or gpt-4o
+# GPT-4o performs high quality analysis but has a 10x higher cost (https://openai.com/api/pricing)
+model = "gpt-4o"
 # Select the model that should be used to index privacy policy documents
 # Recommended: text-embedding-3-small or text-embedding-3-large
 embedding_model = "text-embedding-3-small"
@@ -111,7 +111,6 @@ android = [
 	"com.android.*",
 	"com.evenwell.*",
 	"com.fih.infodisplay",
-	"com.google.android.*",
 	"com.google.ar.*",
 	"com.google.audio.*",
 	"com.google.euiccpixel",

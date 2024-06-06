@@ -22,7 +22,8 @@ class PermissionsAnalyzer(AppAnalyzer):
 		dangerous_perm_total = 0
 		for line in configs.main.analysis.permissions.dangerous_permissions:
 			for permission in app.permissions:
-				if permission in line:
+				if line == permission:
+					print(permission)
 					dangerous_perm_total += 1
 
 		score = dangerous_perm_total / len(configs.main.analysis.permissions.dangerous_permissions)

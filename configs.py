@@ -29,8 +29,7 @@ def load(main_file, secrets_file):
 	secrets = munchify(toml.load(secrets_file))
 
 	if not secrets.api.openai:
-		logger.critical("secrets.api.openai is not set. The GPT analyzer needs access to the OpenAI API to function.")
-		return False
+		logger.warning("secrets.api.openai is not set. The GPT analyzer needs access to the OpenAI API to function.")
 
 	if not secrets.api.exodus:
 		logger.warning("secrets.api.exodus is not set. The Exodus Privacy API will not be used for fetching permissions and trackers.")
