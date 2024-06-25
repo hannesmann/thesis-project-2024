@@ -74,3 +74,5 @@ Uploading a list of apps manually can be done with cURL:
 curl --data-binary "@apps.csv" "http://localhost:8000/api/upload_android_csv"
 curl --data-binary "@apps.csv" "http://localhost:8000/api/upload_ios_csv"
 ```
+
+Example files used in the thesis project are provided in `thesis/`.
