@@ -55,7 +55,7 @@ class IntuneImporter(DeviceImporter):
 				self.token = token_result["access_token"]
 				logger.info(f"Connected to Intune: {self.token}")
 			else:
-				logger.error(f"Could not connect to Intune: {token_result.get("error")}")
+				logger.error(f"Could not connect to Intune: {token_result.get('error')}")
 				logger.error(token_result.get("error_description"))
 
 	@sleep_and_retry
@@ -100,7 +100,7 @@ class IntuneImporter(DeviceImporter):
 						count=app["deviceCount"]
 					)
 				else:
-					logger.warning(f"Got app {app["displayName"]} for unknown platform: {app["platform"]}")
+					logger.warning(f"Got app {app['displayName']} for unknown platform: {app['platform']}")
 
 			self.last_fetch_time = datetime.datetime.now()
 			return result
@@ -123,12 +123,12 @@ class IntuneImporter(DeviceImporter):
 					result[device["id"]] = Device(device["id"], device["deviceName"].replace(" ", "_"), os, ownership)
 
 					# Fetch app device statuses and associate with our results
-					path = f"deviceManagement/managedDevices/{device["id"]}/detectedApps?$select=displayName"
+					path = f"deviceManagement/managedDevices/{device['id']}/detectedApps?$select=displayName"
 					discovered_device_apps = self.intune_request("get", path)["value"]
 					for app in discovered_device_apps:
 						result[device["id"]].update_discovered_apps([app["displayName"]], False)
 				else:
-					logger.warning(f"Got device {device["id"]} for unknown platform: {device["operatingSystem"]}")
+					logger.warning(f"Got device {device['id']} for unknown platform: {device['operatingSystem']}")
 
 			self.last_fetch_time = datetime.datetime.now()
 			return result

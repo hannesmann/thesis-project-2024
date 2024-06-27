@@ -42,7 +42,7 @@ class AppAnalyzerThread:
 
 		self.analyzers = []
 		if configs.main.analysis.autorun and default_analyzers:
-			logger.info(f"Adding app analysers: {" ".join([type(a).__name__ for a in default_analyzers])}")
+			logger.info(f"Adding app analysers: {' '.join([type(a).__name__ for a in default_analyzers])}")
 			self.analyzers = default_analyzers
 
 		self.events = Queue()

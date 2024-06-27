@@ -44,7 +44,7 @@ class AppInfoImporterThread:
 
 		self.importers = []
 		if default_importers and configs.main.importers.autorun:
-			logger.info(f"Adding app info importers: {" ".join([type(i).__name__ for i in default_importers])}")
+			logger.info(f"Adding app info importers: {' '.join([type(i).__name__ for i in default_importers])}")
 			self.importers = default_importers
 
 		self.events = Queue()

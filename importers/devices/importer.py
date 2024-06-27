@@ -57,7 +57,7 @@ class DeviceImporterThread:
 
 		self.events = Queue()
 		if default_importers and configs.main.importers.autorun:
-			logger.info(f"Adding device importers: {" ".join([type(i).__name__ for i in default_importers])}")
+			logger.info(f"Adding device importers: {' '.join([type(i).__name__ for i in default_importers])}")
 			for importer in default_importers:
 				self.queue_import(importer)
 

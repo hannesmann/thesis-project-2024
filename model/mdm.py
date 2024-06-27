@@ -42,8 +42,8 @@ class Device:
 
 		for app in apps:
 			# List of model.Application
-			if hasattr(app, "package_id") and app.package_id not in self.discovered_apps:
-				self.discovered_apps.append(app.package_id)
+			if hasattr(app, "id") and app.id not in self.discovered_apps:
+				self.discovered_apps.append(app.id)
 			# List of application package IDs
 			elif isinstance(app, str) and app not in self.discovered_apps:
 				self.discovered_apps.append(app)
